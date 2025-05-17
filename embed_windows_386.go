@@ -4,5 +4,5 @@ package main
 
 import "embed"
 
-//go:embed bin/windows-386.zip
+//go:embed embed/windows-386.zip
 var binary embed.FS

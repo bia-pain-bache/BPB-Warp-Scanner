@@ -5,6 +5,7 @@
 !.github/**
 !embed/
 !embed/**
+!embed_*
 !go.mod
 !main.go
 !Makefile

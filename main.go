@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"math/rand"
@@ -111,12 +112,17 @@ func extractAndRunBinary() error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	archivePath := fmt.Sprintf("embed/bin/%s-%s.zip", runtime.GOOS, runtime.GOARCH)
-	zipReader, err := zip.OpenReader(archivePath)
+	archivePath := fmt.Sprintf("embed/%s-%s.zip", runtime.GOOS, runtime.GOARCH)
+	data, err := binary.ReadFile(archivePath)
 	if err != nil {
-		return fmt.Errorf("failed to open zip: %v", err)
+		return fmt.Errorf("failed to read embedded zip: %v", err)
 	}
-	defer zipReader.Close()
+
+	readerAt := bytes.NewReader(data)
+	zipReader, err := zip.NewReader(readerAt, int64(len(data)))
+	if err != nil {
+		panic(fmt.Errorf("failed to open zip: %v", err))
+	}
 
 	if len(zipReader.File) == 0 {
 		return fmt.Errorf("empty zip archive")
