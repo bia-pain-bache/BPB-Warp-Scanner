@@ -15,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 )
@@ -185,9 +184,6 @@ func displayAndCopyEndpoints(count int) error {
 		Rows(results...)
 	fmt.Println(table.Render())
 
-	if err := clipboard.WriteAll(endpoints); err != nil {
-		return fmt.Errorf("failed to copy to clipboard: %v", err)
-	}
 	return scanner.Err()
 }
 

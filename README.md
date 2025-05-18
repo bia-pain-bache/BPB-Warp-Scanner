@@ -5,7 +5,6 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 ## Features
 
 - Ability to adjust results count
-- Copies desired number of results to clipboard in standard format for **BPB Panel**
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
 - Setting number of IPs to scan: `Normal`, `Deep` and `All IPs` mode
 
