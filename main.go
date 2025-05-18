@@ -345,5 +345,5 @@ func main() {
 		return
 	}
 
-	successMessage("Scan completed and Endpoints are copied to clipboard. You can check result.csv for more details.\n")
+	successMessage("Scan completed. You can check result.csv for more details.\n")
 }
