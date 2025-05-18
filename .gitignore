@@ -10,6 +10,7 @@
 !go.sum
 !main.go
 !Makefile
+!install.sh
 !README.md
 !LICENSE
 !RELEASE.md
