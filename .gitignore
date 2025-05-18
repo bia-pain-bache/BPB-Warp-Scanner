@@ -7,6 +7,7 @@
 !embed/**
 !embed_*
 !go.mod
+!go.sum
 !main.go
 !Makefile
 !README.md
