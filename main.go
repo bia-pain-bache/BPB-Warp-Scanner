@@ -295,12 +295,19 @@ func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 				}
 
 				if successCount == 0 {
-					log.Printf("%s -> Failed\n", endpoint)
+					log.Printf("%s -> %s\n", fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
 				} else {
 					avgLatency := totalLatency / int64(successCount)
 					lossRate := float64(tries-successCount) / float64(tries) * 100
 					results <- ScanResult{Endpoint: endpoint, Loss: lossRate, Latency: avgLatency}
-					log.Printf("%s -> Success, Loss rate: %.2f %%, Avg Latency: %d ms\n", endpoint, lossRate, avgLatency)
+					log.Printf("%s -> %s - %s %.2f %% - %s %d ms\n",
+						fmtStr(endpoint, ORANGE, false),
+						fmtStr("Success", GREEN, true),
+						fmtStr("Loss rate:", "", true),
+						lossRate,
+						fmtStr("Avg. Latency:", "", true),
+						avgLatency,
+					)
 				}
 			}(endpoint, i)
 		}
