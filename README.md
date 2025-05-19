@@ -1,16 +1,16 @@
 <h1 align="center">💦 BPB Warp Scanner</h1>
 
-This project is developed to provide a handy Warp endpoints scanner for [BPB Panel](https://github.com/bia-pain-bache/BPB-Worker-Panel).
+This project is developed to provide a handy Warp endpoints scanner for [BPB Panel](https://github.com/bia-pain-bache/BPB-Worker-Panel) using [Xray-core](https://github.com/XTLS/Xray-core)
 
 ## Features
 
-- Ability to adjust results count
+- Ability to adjust output results count
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
-- Setting number of IPs to scan: `Normal`, `Deep` and `All IPs` mode
+- Setting quantity of endpoints to scan: `Quick`, `Normal` and `Deep` modes
 
 ## 💡 How to use
 
-### Windows
+### Windows - Darwin
 
 Based on your operating system architecture, [download the ZIP file](https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest), unzip it, and run the program.
 

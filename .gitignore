@@ -3,9 +3,10 @@
 !gitignore
 !.github/
 !.github/**
-!embed/
-!embed/**
-!embed_*
+!core/
+!core/log/
+!core/log/**
+!core/config.json*
 !go.mod
 !go.sum
 !main.go
