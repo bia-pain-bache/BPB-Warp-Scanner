@@ -518,7 +518,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::2219:699f:a545:d70d]:1018",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -548,7 +548,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::92d:e162:6c28:68a4]:8886",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -578,7 +578,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::13b1:8340:855c:5441]:1843",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -608,7 +608,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::1ceb:291e:8add:d0ce]:2408",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -638,7 +638,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::2123:4ee9:b2bb:f8a3]:908",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -668,7 +668,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::c66e:1771:4bda:68a7]:934",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -698,7 +698,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::5d8c:e256:4fdf:78be]:3581",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -728,7 +728,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::964:5195:66aa:2557]:2408",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -758,7 +758,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::726:7a26:59b3:6d22]:500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -788,7 +788,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::b9ae:13c2:df60:f394]:987",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -818,7 +818,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::5a6c:32ef:b6f:43a3]:8742",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -848,7 +848,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::11e2:3369:b5fe:a448]:3854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -878,7 +878,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::41a9:11ae:8124:30f5]:3581",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -908,7 +908,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::4d63:3d1a:958:61e1]:4198",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -938,7 +938,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::4ae6:5f49:4cb8:bc3b]:4177",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -968,7 +968,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::8856:74d8:470d:5850]:3476",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -998,7 +998,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::22cf:3093:4509:824e]:1387",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1028,7 +1028,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::74ab:c175:524e:176d]:955",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1058,7 +1058,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::90da:66f8:2548:e7d4]:943",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1088,7 +1088,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::13be:ca80:6663:90f3]:1843",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1118,7 +1118,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::88e2:8004:e986:4e14]:854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1148,7 +1148,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::968a:aeb8:1c8e:1f4b]:2371",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1178,7 +1178,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::4cc3:87e2:747b:a908]:3854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1208,7 +1208,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::f600:284f:9058:17c9]:1843",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1238,7 +1238,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::42c4:5f11:f2a2:2a44]:8742",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1268,7 +1268,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::701:8733:f866:3d89]:8886",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1298,7 +1298,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::d5b6:148a:a162:b7b5]:4233",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1328,7 +1328,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::8356:3280:741:601a]:854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1358,7 +1358,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::9c4d:2f90:1aae:5d6b]:1180",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1388,7 +1388,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::6d1d:b462:acc3:410d]:7559",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1418,7 +1418,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::b349:b5d5:89e6:8923]:943",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1448,7 +1448,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::3fd2:254f:7643:9132]:7103",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1478,7 +1478,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::63bf:b953:58a7:54ae]:3138",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1508,7 +1508,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::ffe3:832d:d795:b3d2]:946",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1538,7 +1538,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::fcad:3b48:a7d5:a55d]:854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1568,7 +1568,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::e68d:3130:e137:92e6]:1070",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1598,7 +1598,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::456e:a016:e2a1:9e40]:4233",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1628,7 +1628,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::92c3:6e14:cb03:ba7a]:1701",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1658,7 +1658,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::508d:b849:c5aa:b81d]:1843",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1688,7 +1688,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::ec5e:aa96:e643:f5e2]:1180",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1718,7 +1718,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::8b7b:76d4:6bd8:3bb8]:2506",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1748,7 +1748,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::af6d:eab7:5f37:c5cb]:1180",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1778,7 +1778,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::d90e:13f4:5055:3eed]:1014",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1808,7 +1808,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::f67e:deaa:1ec2:ce1a]:4500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1838,7 +1838,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::5de3:e689:7e79:c91d]:890",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1868,7 +1868,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::918:9c8d:4281:80cc]:3581",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1898,7 +1898,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::ce4a:2c38:2129:e0cc]:1002",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1928,7 +1928,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::da5e:71b4:621c:4387]:908",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1958,7 +1958,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::7a57:a5bc:fcb3:a32c]:4500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -1988,7 +1988,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::6bd6:411e:2af3:2238]:4500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2018,7 +2018,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::aef9:7aee:d295:7f2c]:3476",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2048,7 +2048,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::6d03:f66e:3d3:f794]:3854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2078,7 +2078,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::8063:6216:df37:517f]:878",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2108,7 +2108,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::f329:6585:c7ca:8ef9]:7103",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2138,7 +2138,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::e214:3a1d:b5a6:b7dc]:500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2168,7 +2168,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::3c4d:ea6f:b97:af78]:3138",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2198,7 +2198,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::61d9:d576:832a:3caf]:955",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2228,7 +2228,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::2367:2173:cca4:fa4b]:1070",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2258,7 +2258,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::e482:9f8b:7a1a:2563]:894",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2288,7 +2288,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::c15d:1f2a:a8a4:29b2]:880",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2318,7 +2318,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::f544:712a:9b60:7485]:2506",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2348,7 +2348,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::fbd3:c20:4a1a:8ec6]:968",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2378,7 +2378,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::8b99:e88f:a0cb:afc3]:908",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2408,7 +2408,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::1713:9ef5:d2ae:4a67]:908",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2438,7 +2438,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::65d3:ddd8:b5dc:bf50]:1701",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2468,7 +2468,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::4663:3d35:fff4:f9fa]:878",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2498,7 +2498,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::2d28:818:7621:d706]:1018",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2528,7 +2528,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::623:130d:583e:23f]:894",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2558,7 +2558,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::e922:7cff:3d10:b62f]:878",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2588,7 +2588,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::f17e:7b98:5aec:e1a0]:939",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2618,7 +2618,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::6913:bfd4:f1fd:8f07]:878",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2648,7 +2648,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::fcf9:55ba:2c25:af94]:2506",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2678,7 +2678,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::fb2:f402:a0eb:37ba]:968",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2708,7 +2708,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::c1e:4b71:acec:aec3]:1387",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2738,7 +2738,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::703c:1dd4:7ddc:bdb2]:859",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2768,7 +2768,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::38cc:e6ab:f04e:40d0]:1018",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2798,7 +2798,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::2a5a:97aa:aede:19d6]:4500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2828,7 +2828,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::82c:3167:f63d:904a]:3854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2858,7 +2858,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::42f7:1fd0:5461:6e5e]:1018",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2888,7 +2888,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::c751:46be:74c4:1ac1]:4198",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2918,7 +2918,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::200a:6797:245a:6c41]:3581",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2948,7 +2948,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::fa60:999:957b:ea29]:500",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -2978,7 +2978,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::c4ff:8fe5:c134:3408]:3854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3008,7 +3008,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::7af0:5506:c5a0:517f]:8854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3038,7 +3038,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::1d63:fb12:a36d:873b]:8742",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3068,7 +3068,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::85e3:6f00:8eac:9ff0]:955",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3098,7 +3098,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::71a3:3719:e680:9437]:1014",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3128,7 +3128,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::d95:580a:e6ec:9ee6]:7152",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3158,7 +3158,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::c4a5:c58a:c6a7:cf52]:968",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3188,7 +3188,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::b076:4a47:a7c8:8644]:968",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3218,7 +3218,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::bb7c:2601:4555:4f7]:859",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3248,7 +3248,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::18d6:948c:f10d:b043]:1701",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3278,7 +3278,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::309b:7adf:41f9:afc]:8854",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3308,7 +3308,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::2b1d:868d:f044:70d5]:942",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3338,7 +3338,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::db13:737f:df99:3cff]:3476",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3368,7 +3368,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::c8f3:1c6c:3bae:160c]:945",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3398,7 +3398,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d0::d1ea:47a9:9472:34e8]:903",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3428,7 +3428,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::ee00:ebb:11cf:e2fc]:894",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3458,7 +3458,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::6653:49f:9006:dccb]:4233",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }
@@ -3488,7 +3488,7 @@
                 "noKernelTun": true,
                 "peers": [
                     {
-                        "endpoint": "[2606:4700:d1::fd12:849a:7a56:ebf9]:4233",
+                        "endpoint": "",
                         "keepAlive": 5,
                         "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
                     }

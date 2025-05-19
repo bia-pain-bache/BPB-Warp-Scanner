@@ -420,4 +420,6 @@ func main() {
 	successMessage("Scan completed.")
 	message := fmt.Sprintf("Found %d endpoints. You can check result.csv for more details.\n", len(results))
 	successMessage(message)
+	fmt.Println("Press any key to exit...")
+	fmt.Scanln()
 }
