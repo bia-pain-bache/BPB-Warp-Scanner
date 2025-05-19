@@ -37,7 +37,7 @@ linux:
 		GOOS=linux GOARCH=$$arch $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o "$$outdir/$$outfile"; \
 		cp LICENSE "$$outdir/"; \
 		cp -r $(CORE_DIR) "$$outdir/"; \
-		XZ_OPT=-9 tar -cvJf "$(DIST_DIR)/$$outfile.tar.gz" -C "$$outdir/" .; \
+		tar -cvzf "$(DIST_DIR)/$$outfile.tar.gz" -C "$$outdir/" .; \
 	done
 	rm "$(CORE_DIR)/xray"
 
