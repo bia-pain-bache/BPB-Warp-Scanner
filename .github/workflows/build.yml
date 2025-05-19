@@ -13,6 +13,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64, arm, 386]
+        exclude:
+          - goos: darwin
+            goarch: arm
+          - goos: darwin
+            goarch: 386
+      fail-fast: false
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -24,7 +35,7 @@ jobs:
           go-version: ^1.24
 
       - name: Build and zip
-        run: make build VERSION=$VERSION
+        run: make build VERSION=$VERSION GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
 
       - name: Read release note
         id: read_release
