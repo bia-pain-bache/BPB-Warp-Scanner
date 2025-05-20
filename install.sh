@@ -37,9 +37,6 @@ else
     echo "Binary not found. Installing version ${LATEST_VERSION}..."
 fi
 
-rm -f "${ARCHIVE}" "${BINARY}"
-
-
 echo "Downloading ${ARCHIVE}..."
 curl -L -# -o "${ARCHIVE}" "https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest/download/${ARCHIVE}" && \
 tar xzf "./${ARCHIVE}" && \
