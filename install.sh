@@ -23,6 +23,7 @@ echo "Latest version: ${LATEST_VERSION}"
 
 # Check existing binary version
 if [ -x "./${BINARY}" ]; then
+    INSTALLED_VERSION=$("./${BINARY}" --version)
     LATEST_VERSION=$(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/BPB-Warp-Scanner/main/VERSION)
     echo "Installed version: $INSTALLED_VERSION"
 
