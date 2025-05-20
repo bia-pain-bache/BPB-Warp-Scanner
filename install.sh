@@ -16,8 +16,8 @@ case "$ARCH" in
 esac
 
 LATEST_VERSION=1.0.1
-BINARY="BPB-Warp-Scanner-linux-${ARCH}"
-ARCHIVE="${BINARY}.tar.gz"
+BINARY="BPB-Warp-Scanner"
+ARCHIVE="${BINARY}-linux-${ARCH}.tar.gz"
 
 echo "Latest version: ${LATEST_VERSION}"
 
