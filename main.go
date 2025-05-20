@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -21,7 +22,6 @@ import (
 )
 
 const (
-	VERSION     = "v1.0.0"
 	RED         = "1"
 	GREEN       = "2"
 	ORANGE      = "208"
@@ -30,6 +30,7 @@ const (
 )
 
 var (
+	VERSION  = "dev"
 	title    = fmtStr("●", BLUE, true)
 	ask      = fmtStr("-", "", true)
 	info     = fmtStr("+", "", true)
@@ -158,24 +159,9 @@ func UpdateXrayConfig(batch []string) error {
 
 func runXrayCore() (*exec.Cmd, error) {
 	cmd := exec.Command(xrayPath, "-c", CONFIG_PATH)
-	// stdout, _ := cmd.StdoutPipe()
-	// stderr, _ := cmd.StderrPipe()
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("Error starting XRay core: %v\n", err)
 	}
-	// Print XRay logs (optional)
-	// go func() {
-	// 	scanner := bufio.NewScanner(stdout)
-	// 	for scanner.Scan() {
-	// 		fmt.Printf("[XRay] %s\n", scanner.Text())
-	// 	}
-	// }()
-	// go func() {
-	// 	scanner := bufio.NewScanner(stderr)
-	// 	for scanner.Scan() {
-	// 		fmt.Printf("[XRay-ERR] %s\n", scanner.Text())
-	// 	}
-	// }()
 
 	fmt.Println("Waiting for XRay core to initialize...")
 	time.Sleep(200 * time.Millisecond)
@@ -227,6 +213,30 @@ func successMessage(message string) {
 	fmt.Printf("\n%s %s\n", succMark, message)
 }
 
+// func setDNS() {
+// 	http.DefaultTransport.(*http.Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+// 		d := net.Dialer{
+// 			Resolver: &net.Resolver{
+// 				PreferGo: true,
+// 				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+// 					conn, err := net.Dial("udp", "8.8.8.8:53")
+// 					if err != nil {
+// 						failMessage("Failed to dial DNS. Please disconnect your VPN and try again...")
+// 						log.Fatal(err)
+// 					}
+// 					return conn, nil
+// 				},
+// 			},
+// 		}
+// 		conn, err := d.DialContext(ctx, network, addr)
+// 		if err != nil {
+// 			failMessage("DNS resolution failed. Please disconnect your VPN and try again...")
+// 			log.Fatal(err)
+// 		}
+// 		return conn, nil
+// 	}
+// }
+
 func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 	fmt.Printf("Generated %d endpoints to test\n", len(endpoints))
 	var allResults []ScanResult
@@ -249,12 +259,19 @@ func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 
 		var wg sync.WaitGroup
 		results := make(chan ScanResult, len(batch))
+		transports := make([]*http.Transport, len(batch))
 
 		for i, endpoint := range batch {
 			wg.Add(1)
 			go func(endpoint string, portIdx int) {
 				defer wg.Done()
 				time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
+				proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 10808+portIdx)))
+				transport := &http.Transport{
+					Proxy: http.ProxyURL(proxyURL),
+				}
+				transports[portIdx] = transport
+
 				const tries = 3
 				var successCount int
 				var totalLatency int64
@@ -268,11 +285,10 @@ func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 						defer innerWg.Done()
 						time.Sleep(time.Duration(delay) * time.Millisecond)
 						client := &http.Client{
-							Timeout: 500 * time.Millisecond,
-							Transport: &http.Transport{
-								Proxy: http.ProxyURL(must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 10808+portIdx)))),
-							},
+							Timeout:   1 * time.Second,
+							Transport: transport,
 						}
+
 						start := time.Now()
 						resp, err := client.Head("http://www.gstatic.com/generate_204")
 						latency := time.Since(start).Milliseconds()
@@ -329,12 +345,21 @@ func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 }
 
 func init() {
+	showVersion := flag.Bool("version", false, "Show version")
+	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(VERSION)
+		os.Exit(0)
+	}
+
 	if runtime.GOOS == "windows" {
 		xrayPath = "core/xray.exe"
 	} else {
 		xrayPath = "core/xray"
 	}
 
+	// setDNS()
 	renderHeader()
 }
 

@@ -1,5 +1,21 @@
 {
+    "dns": {
+        "servers": [
+            "8.8.8.8"
+        ],
+        "tag": "dns"
+    },
     "inbounds": [
+        {
+            "port": 1080,
+            "protocol": "dokodemo-door",
+            "settings": {
+                "address": "1.1.1.1",
+                "network": "tcp,udp",
+                "port": 53
+            },
+            "tag": "dns-in"
+        },
         {
             "port": 10808,
             "protocol": "http",
@@ -3539,12 +3555,38 @@
                 ]
             },
             "tag": "udp-noise"
+        },
+        {
+            "protocol": "dns",
+            "proxySettings": {
+                "tag": "direct"
+            },
+            "tag": "dns-out"
+        },
+        {
+            "protocol": "freedom",
+            "settings": {
+                "domainStrategy": "UseIP"
+            },
+            "tag": "direct"
         }
     ],
     "remarks": "test",
     "routing": {
         "domainStrategy": "AsIs",
         "rules": [
+            {
+                "outboundTag": "dns-out",
+                "port": "53",
+                "type": "field"
+            },
+            {
+                "inboundTag": [
+                    "dns-in"
+                ],
+                "outboundTag": "dns-out",
+                "type": "field"
+            },
             {
                 "inboundTag": [
                     "http-in-1"
