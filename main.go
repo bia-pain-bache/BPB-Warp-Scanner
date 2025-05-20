@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -27,6 +28,8 @@ const (
 	ORANGE      = "208"
 	BLUE        = "39"
 	CONFIG_PATH = "core/config.json"
+	ACCESS_LOG  = "core/log/access.log"
+	ERROR_LOG   = "core/log/error.log"
 )
 
 var (
@@ -65,6 +68,165 @@ type ScanResult struct {
 	Endpoint string
 	Loss     float64
 	Latency  int64
+}
+
+func buildXrayInbound(index int) map[string]any {
+	port := 10808 + index
+	tag := fmt.Sprintf("http-in-%d", index+1)
+	return map[string]any{
+		"port":     port,
+		"protocol": "http",
+		"tag":      tag,
+	}
+}
+
+func buildXrayWgOutbound(index int, endpoint string, isNoise bool) map[string]any {
+	tag := fmt.Sprintf("proxy-%d", index+1)
+	outbound := map[string]any{
+		"protocol": "wireguard",
+		"settings": map[string]any{
+			"address": []interface{}{
+				"172.16.0.2/32",
+				"2606:4700:110:844c:42a:316b:f0a4:c524/128",
+			},
+			"mtu":         1280,
+			"noKernelTun": true,
+			"peers": []interface{}{
+				map[string]any{
+					"endpoint":  endpoint,
+					"keepAlive": 5,
+					"publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+				},
+			},
+			"reserved": []int{
+				120,
+				63,
+				135,
+			},
+			"secretKey": "aBLe8/f8yno5xxXZKGLvUwLs6iWLOH5BSZf3AWH7yWk=",
+		},
+		"streamSettings": map[string]any{
+			"sockopt": map[string]any{
+				"dialerProxy": "udp-noise",
+			},
+		},
+		"tag": tag,
+	}
+
+	if isNoise {
+		outbound["streamSettings"] = map[string]any{
+			"sockopt": map[string]any{
+				"dialerProxy": "udp-noise",
+			},
+		}
+	}
+
+	return outbound
+}
+
+func buildXrayRoutingRule(index int) map[string]any {
+	inboundTag := fmt.Sprintf("http-in-%d", index+1)
+	outboundTag := fmt.Sprintf("proxy-%d", index+1)
+	return map[string]any{
+		"inboundTag":  []any{inboundTag},
+		"outboundTag": outboundTag,
+		"type":        "field",
+	}
+}
+
+func buildXrayConfig(endpoints []string, isNoise bool) map[string]any {
+	config := map[string]any{
+		"remarks": "test",
+		"log": map[string]any{
+			"access":   "core/log/access.log",
+			"error":    "core/log/error.log",
+			"loglevel": "warning",
+		},
+		"dns": map[string]any{
+			"servers": []string{
+				"8.8.8.8",
+			},
+			"tag": "dns",
+		},
+		"inbounds": []any{},
+		"outbounds": []any{
+			map[string]any{
+				"protocol": "dns",
+				"proxySettings": map[string]any{
+					"tag": "direct",
+				},
+				"tag": "dns-out",
+			},
+			map[string]any{
+				"protocol": "freedom",
+				"settings": map[string]any{
+					"domainStrategy": "UseIP",
+				},
+				"tag": "direct",
+			},
+		},
+		"routing": map[string]any{
+			"domainStrategy": "AsIs",
+			"rules":          []any{},
+		},
+	}
+
+	if isNoise {
+		udpNoiseOutbound := map[string]any{
+			"protocol": "freedom",
+			"settings": map[string]any{
+				"noises": []any{
+					map[string]any{
+						"delay":  "1-1",
+						"packet": "50-100",
+						"type":   "rand",
+					},
+					map[string]any{
+						"delay":  "1-1",
+						"packet": "50-100",
+						"type":   "rand",
+					},
+					map[string]any{
+						"delay":  "1-1",
+						"packet": "50-100",
+						"type":   "rand",
+					},
+					map[string]any{
+						"delay":  "1-1",
+						"packet": "50-100",
+						"type":   "rand",
+					},
+					map[string]any{
+						"delay":  "1-1",
+						"packet": "50-100",
+						"type":   "rand",
+					},
+				},
+			},
+			"tag": "udp-noise",
+		}
+
+		outbounds := config["outbounds"].([]any)
+		outbounds = append(outbounds, udpNoiseOutbound)
+		config["outbounds"] = outbounds
+	}
+
+	for index, endpoint := range endpoints {
+		inbound := buildXrayInbound(index)
+		inbounds := config["inbounds"].([]any)
+		inbounds = append(inbounds, inbound)
+		config["inbounds"] = inbounds
+		outbound := buildXrayWgOutbound(index, endpoint, isNoise)
+		outbounds := config["outbounds"].([]any)
+		outbounds = append(outbounds, outbound)
+		config["outbounds"] = outbounds
+		routingRule := buildXrayRoutingRule(index)
+		routingRules := config["routing"].(map[string]any)["rules"].([]any)
+		routingRules = append(routingRules, routingRule)
+		config["routing"].(map[string]any)["rules"] = routingRules
+	}
+
+	return config
 }
 
 func generateEndpoints(count int, ipv4 bool, ipv6 bool) []string {
@@ -129,29 +291,19 @@ func writeLines(path string, lines []string) error {
 	return os.WriteFile(path, []byte(strings.Join(lines, "\n")), 0644)
 }
 
-func UpdateXrayConfig(batch []string) error {
-	data, err := os.ReadFile(CONFIG_PATH)
+func createXrayConfig(batch []string, isNoise bool) error {
+	config := buildXrayConfig(batch, isNoise)
+	file, err := os.Create(CONFIG_PATH)
 	if err != nil {
-		return fmt.Errorf("Error reading Xray config: %v\n", err)
+		return fmt.Errorf("Error creating config.json: %v\n", err)
 	}
-	var config map[string]any
-	if err := json.Unmarshal(data, &config); err != nil {
-		return fmt.Errorf("Error parsing Xray config: %v\n", err)
-	}
+	defer file.Close()
 
-	outbounds := config["outbounds"].([]any)
-	for i := 0; i < len(batch) && i < len(outbounds); i++ {
-		ob := outbounds[i].(map[string]any)
-		if ob["protocol"] == "wireguard" {
-			settings := ob["settings"].(map[string]any)
-			peers := settings["peers"].([]any)
-			peer := peers[0].(map[string]any)
-			peer["endpoint"] = batch[i]
-		}
-	}
-	updatedData, _ := json.MarshalIndent(config, "", "    ")
-	if err := os.WriteFile(CONFIG_PATH, updatedData, 0644); err != nil {
-		return fmt.Errorf("Error updating Xray config: %v\n", err)
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "	")
+	err = encoder.Encode(config)
+	if err != nil {
+		return fmt.Errorf("Error creating Xray config: %v\n", err)
 	}
 
 	return nil
@@ -237,7 +389,7 @@ func successMessage(message string) {
 // 	}
 // }
 
-func scanEndpoints(endpoints []string) ([]ScanResult, error) {
+func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
 	fmt.Printf("Generated %d endpoints to test\n", len(endpoints))
 	var allResults []ScanResult
 
@@ -246,7 +398,7 @@ func scanEndpoints(endpoints []string) ([]ScanResult, error) {
 		batchEnd := min(batchStart+batchSize, len(endpoints))
 		batch := endpoints[batchStart:batchEnd]
 
-		err := UpdateXrayConfig(batch)
+		err := createXrayConfig(batch, isNoise)
 		if err != nil {
 			return nil, err
 		}
@@ -353,6 +505,22 @@ func init() {
 		os.Exit(0)
 	}
 
+	logFiles := []string{ACCESS_LOG, ERROR_LOG}
+	for _, file := range logFiles {
+		dir := filepath.Dir(file)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			failMessage("Failed to create Xray log directory")
+			log.Fatal(err)
+		}
+
+		file, err := os.Create(file)
+		if err != nil {
+			failMessage("Failed to create Xray log file")
+			log.Fatal(err)
+		}
+		defer file.Close()
+	}
+
 	if runtime.GOOS == "windows" {
 		xrayPath = "core/xray.exe"
 	} else {
@@ -368,12 +536,11 @@ func main() {
 	fmt.Printf("\n%s Quick scan - 100 endpoints", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Normal scan - 1000 endpoints", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
-	fmt.Print("\n- Please select scan mode (1-3): ")
 	var count int
-	var mode string
-	fmt.Scanln(&mode)
-
 	for {
+		fmt.Print("\n- Please select scan mode (1-3): ")
+		var mode string
+		fmt.Scanln(&mode)
 		switch mode {
 		case "1":
 			count = 100
@@ -388,14 +555,14 @@ func main() {
 		break
 	}
 
-	var ipVersion string
+	var ipv4, ipv6 bool
 	fmt.Printf("\n%s Scan IPv4 only", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Scan IPv6 only", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s IPv4 and IPv6", fmtStr("3.", BLUE, true))
-	fmt.Print("\n- Please select IP version (1-3): ")
-	fmt.Scanln(&ipVersion)
-	var ipv4, ipv6 bool
 	for {
+		var ipVersion string
+		fmt.Print("\n- Please select IP version (1-3): ")
+		fmt.Scanln(&ipVersion)
 		switch ipVersion {
 		case "1":
 			ipv4 = true
@@ -415,6 +582,25 @@ func main() {
 
 	endpoints := generateEndpoints(count, ipv4, ipv6)
 
+	var useNoise bool
+	fmt.Printf("\n%s Warp is totally blocked on my ISP", fmtStr("1.", BLUE, true))
+	fmt.Printf("\n%s Warp is OK, just need faster endpoints", fmtStr("2.", BLUE, true))
+	for {
+		var res string
+		fmt.Print("\n- Please select your situation (1 or 2): ")
+		fmt.Scanln(&res)
+		switch res {
+		case "1":
+			useNoise = true
+		case "2":
+			useNoise = false
+		default:
+			failMessage("Invalid choice. Please select 1 or 2.")
+			continue
+		}
+		break
+	}
+
 	var outCount int
 	for {
 		var res string
@@ -429,7 +615,7 @@ func main() {
 		break
 	}
 
-	results, err := scanEndpoints(endpoints)
+	results, err := scanEndpoints(endpoints, useNoise)
 	if err != nil {
 		failMessage("Scan failed.")
 		log.Fatal(err)

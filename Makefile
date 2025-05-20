@@ -18,7 +18,7 @@ XRAY_ZIP := temp/xray.zip
 .PHONY: build clean
 
 pre-build:
-	@mkdir -p $(OUT_DIR) $(DIST_DIR) temp
+	@mkdir -p $(OUT_DIR) $(DIST_DIR) temp core
 
 build: pre-build
 	@echo "Downloading latest Xray-core release..."; \

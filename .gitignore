@@ -3,7 +3,6 @@
 !gitignore
 !.github/
 !.github/**
-!core/
 !go.mod
 !go.sum
 !main.go
