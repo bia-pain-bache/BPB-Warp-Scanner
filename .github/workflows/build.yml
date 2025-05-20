@@ -53,8 +53,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/*
-          tag: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
+          tag: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
           overwrite: true
           file_glob: true
           prerelease: true
