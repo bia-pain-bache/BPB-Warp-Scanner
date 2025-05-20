@@ -1,6 +1,4 @@
-# Initial release
+# Bug fixes and Improvements
 
-- `IPv4`, `IPv6` and `IPv4 & IPv6` scan modes
-- `Quick`, `Normal` and `Deep` scan modes
-- Custom output counts
-- Real delay test instead of handshake test
+- Fixed Termux DNS issue.
+- Revised installation and versioning. Just run script and it checks for any updates if available.

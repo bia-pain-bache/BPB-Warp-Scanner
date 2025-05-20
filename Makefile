@@ -1,4 +1,4 @@
-VER ?= $(VERSION)
+VER ?= $(shell cat VERSION)
 GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
 APP_NAME := BPB-Warp-Scanner
@@ -28,14 +28,14 @@ build: pre-build
 	echo "Building for $(GOOS)-$(GOARCH)..."; \
 	outdir="$(OUT_DIR)/$(APP_NAME)-$(GOOS)-$(GOARCH)"; \
 	mkdir -p "$$outdir"; \
-	outfile="$(APP_NAME)-$(GOOS)-$(GOARCH)"; \
-	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o "$$outdir/$$outfile"; \
+	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o "$$outdir/$(APP_NAME)"; \
 	cp LICENSE "$$outdir/"; \
 	cp -r $(CORE_DIR) "$$outdir/"; \
+	archive="$(APP_NAME)-$(GOOS)-$(GOARCH)"; \
 	if [ "$(GOOS)" = "windows" ]; then \
-		(cd "$$outdir" && zip -9vr -q "../../$(DIST_DIR)/BPB-Warp-Scanner-$(GOOS)-$(GOARCH).zip" .); \
+		(cd "$$outdir" && zip -9vr -q "../../$(DIST_DIR)/$$archive.zip" .); \
 	else \
-		tar -cvzf "$(DIST_DIR)/$$outfile.tar.gz" -C "$$outdir/" .; \
+		tar -cvzf "$(DIST_DIR)/$$archive.tar.gz" -C "$$outdir/" .; \
 	fi; \
 	rm -f $(CORE_DIR)/xray*
 

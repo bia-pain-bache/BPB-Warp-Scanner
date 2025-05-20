@@ -4,6 +4,7 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 
 ## Features
 
+- Performs real delay test instead of ping to extract real endpoints
 - Ability to adjust output results count
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
 - Setting quantity of endpoints to scan: `Quick`, `Normal` and `Deep` modes
@@ -12,7 +13,7 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 
 ### Windows - Darwin
 
-Based on your operating system architecture, [download the ZIP file](https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest), unzip it, and run the program.
+Based on your operating system architecture, [download the ZIP file](https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest), unzip it, and run the `BPB-Warp-Scanner`.
 
 ### Android (Termux) - Linux
 
