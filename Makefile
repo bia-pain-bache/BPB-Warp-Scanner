@@ -1,4 +1,4 @@
-VER ?= $(shell cat VERSION)
+VER ?= $(VERSION)
 GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
 APP_NAME := BPB-Warp-Scanner
