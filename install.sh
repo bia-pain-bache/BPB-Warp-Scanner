@@ -15,17 +15,14 @@ case "$ARCH" in
     *)             echo "Unsupported architecture: ${ARCH}" && exit 1 ;;
 esac
 
-LATEST_VERSION=1.0.1
 BINARY="BPB-Warp-Scanner"
 ARCHIVE="${BINARY}-linux-${ARCH}.tar.gz"
 
-echo "Latest version: ${LATEST_VERSION}"
-
-# Check existing binary version
 if [ -x "./${BINARY}" ]; then
     INSTALLED_VERSION=$("./${BINARY}" --version)
     LATEST_VERSION=$(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/BPB-Warp-Scanner/main/VERSION)
     echo "Installed version: $INSTALLED_VERSION"
+    echo "Latest version: ${LATEST_VERSION}"
 
     if [ "${INSTALLED_VERSION}" = "${LATEST_VERSION}" ]; then
         echo "Scanner is up to date. Running..."
