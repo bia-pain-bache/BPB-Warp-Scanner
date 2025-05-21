@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -9,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -23,13 +21,11 @@ import (
 )
 
 const (
-	RED         = "1"
-	GREEN       = "2"
-	ORANGE      = "208"
-	BLUE        = "39"
-	CONFIG_PATH = "core/config.json"
-	ACCESS_LOG  = "core/log/access.log"
-	ERROR_LOG   = "core/log/error.log"
+	RED      = "1"
+	GREEN    = "2"
+	ORANGE   = "208"
+	BLUE     = "39"
+	CORE_DIR = "core"
 )
 
 var (
@@ -40,6 +36,12 @@ var (
 	warning  = fmtStr("Warning", RED, true)
 	xrayPath string
 )
+
+type ScanResult struct {
+	Endpoint string
+	Loss     float64
+	Latency  int64
+}
 
 func fmtStr(str string, color string, isBold bool) string {
 	style := lipgloss.NewStyle().Bold(isBold)
@@ -62,171 +64,6 @@ func renderHeader() {
 		fmtStr("Warp Scanner", BLUE, true),
 		fmtStr(VERSION, GREEN, false),
 	)
-}
-
-type ScanResult struct {
-	Endpoint string
-	Loss     float64
-	Latency  int64
-}
-
-func buildXrayInbound(index int) map[string]any {
-	port := 10808 + index
-	tag := fmt.Sprintf("http-in-%d", index+1)
-	return map[string]any{
-		"port":     port,
-		"protocol": "http",
-		"tag":      tag,
-	}
-}
-
-func buildXrayWgOutbound(index int, endpoint string, isNoise bool) map[string]any {
-	tag := fmt.Sprintf("proxy-%d", index+1)
-	outbound := map[string]any{
-		"protocol": "wireguard",
-		"settings": map[string]any{
-			"address": []interface{}{
-				"172.16.0.2/32",
-				"2606:4700:110:844c:42a:316b:f0a4:c524/128",
-			},
-			"mtu":         1280,
-			"noKernelTun": true,
-			"peers": []interface{}{
-				map[string]any{
-					"endpoint":  endpoint,
-					"keepAlive": 5,
-					"publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-				},
-			},
-			"reserved": []int{
-				120,
-				63,
-				135,
-			},
-			"secretKey": "aBLe8/f8yno5xxXZKGLvUwLs6iWLOH5BSZf3AWH7yWk=",
-		},
-		"streamSettings": map[string]any{
-			"sockopt": map[string]any{
-				"dialerProxy": "udp-noise",
-			},
-		},
-		"tag": tag,
-	}
-
-	if isNoise {
-		outbound["streamSettings"] = map[string]any{
-			"sockopt": map[string]any{
-				"dialerProxy": "udp-noise",
-			},
-		}
-	}
-
-	return outbound
-}
-
-func buildXrayRoutingRule(index int) map[string]any {
-	inboundTag := fmt.Sprintf("http-in-%d", index+1)
-	outboundTag := fmt.Sprintf("proxy-%d", index+1)
-	return map[string]any{
-		"inboundTag":  []any{inboundTag},
-		"outboundTag": outboundTag,
-		"type":        "field",
-	}
-}
-
-func buildXrayConfig(endpoints []string, isNoise bool) map[string]any {
-	config := map[string]any{
-		"remarks": "test",
-		"log": map[string]any{
-			"access":   "core/log/access.log",
-			"error":    "core/log/error.log",
-			"loglevel": "warning",
-		},
-		"dns": map[string]any{
-			"servers": []string{
-				"8.8.8.8",
-			},
-			"tag": "dns",
-		},
-		"inbounds": []any{},
-		"outbounds": []any{
-			map[string]any{
-				"protocol": "dns",
-				"proxySettings": map[string]any{
-					"tag": "direct",
-				},
-				"tag": "dns-out",
-			},
-			map[string]any{
-				"protocol": "freedom",
-				"settings": map[string]any{
-					"domainStrategy": "UseIP",
-				},
-				"tag": "direct",
-			},
-		},
-		"routing": map[string]any{
-			"domainStrategy": "AsIs",
-			"rules":          []any{},
-		},
-	}
-
-	if isNoise {
-		udpNoiseOutbound := map[string]any{
-			"protocol": "freedom",
-			"settings": map[string]any{
-				"noises": []any{
-					map[string]any{
-						"delay":  "1-1",
-						"packet": "50-100",
-						"type":   "rand",
-					},
-					map[string]any{
-						"delay":  "1-1",
-						"packet": "50-100",
-						"type":   "rand",
-					},
-					map[string]any{
-						"delay":  "1-1",
-						"packet": "50-100",
-						"type":   "rand",
-					},
-					map[string]any{
-						"delay":  "1-1",
-						"packet": "50-100",
-						"type":   "rand",
-					},
-					map[string]any{
-						"delay":  "1-1",
-						"packet": "50-100",
-						"type":   "rand",
-					},
-				},
-			},
-			"tag": "udp-noise",
-		}
-
-		outbounds := config["outbounds"].([]any)
-		outbounds = append(outbounds, udpNoiseOutbound)
-		config["outbounds"] = outbounds
-	}
-
-	for index, endpoint := range endpoints {
-		inbound := buildXrayInbound(index)
-		inbounds := config["inbounds"].([]any)
-		inbounds = append(inbounds, inbound)
-		config["inbounds"] = inbounds
-		outbound := buildXrayWgOutbound(index, endpoint, isNoise)
-		outbounds := config["outbounds"].([]any)
-		outbounds = append(outbounds, outbound)
-		config["outbounds"] = outbounds
-		routingRule := buildXrayRoutingRule(index)
-		routingRules := config["routing"].(map[string]any)["rules"].([]any)
-		routingRules = append(routingRules, routingRule)
-		config["routing"].(map[string]any)["rules"] = routingRules
-	}
-
-	return config
 }
 
 func generateEndpoints(count int, ipv4 bool, ipv6 bool) []string {
@@ -282,6 +119,8 @@ func generateEndpoints(count int, ipv4 bool, ipv6 bool) []string {
 		}
 	}
 
+	message := fmt.Sprintf("Generated %d endpoints to test\n", len(endpoints))
+	successMessage(message)
 	return endpoints
 }
 
@@ -289,35 +128,6 @@ func must[T any](v T, _ error) T { return v }
 
 func writeLines(path string, lines []string) error {
 	return os.WriteFile(path, []byte(strings.Join(lines, "\n")), 0644)
-}
-
-func createXrayConfig(batch []string, isNoise bool) error {
-	config := buildXrayConfig(batch, isNoise)
-	file, err := os.Create(CONFIG_PATH)
-	if err != nil {
-		return fmt.Errorf("Error creating config.json: %v\n", err)
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "	")
-	err = encoder.Encode(config)
-	if err != nil {
-		return fmt.Errorf("Error creating Xray config: %v\n", err)
-	}
-
-	return nil
-}
-
-func runXrayCore() (*exec.Cmd, error) {
-	cmd := exec.Command(xrayPath, "-c", CONFIG_PATH)
-	if err := cmd.Start(); err != nil {
-		return nil, fmt.Errorf("Error starting XRay core: %v\n", err)
-	}
-
-	fmt.Println("Waiting for XRay core to initialize...")
-	time.Sleep(200 * time.Millisecond)
-	return cmd, nil
 }
 
 func renderEndpoints(results []ScanResult) {
@@ -390,108 +200,100 @@ func successMessage(message string) {
 // }
 
 func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
-	fmt.Printf("Generated %d endpoints to test\n", len(endpoints))
-	var allResults []ScanResult
-
-	batchSize := 100
-	for batchStart := 0; batchStart < len(endpoints); batchStart += batchSize {
-		batchEnd := min(batchStart+batchSize, len(endpoints))
-		batch := endpoints[batchStart:batchEnd]
-
-		err := createXrayConfig(batch, isNoise)
-		if err != nil {
-			return nil, err
-		}
-
-		cmd, err := runXrayCore()
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-
-		var wg sync.WaitGroup
-		results := make(chan ScanResult, len(batch))
-		transports := make([]*http.Transport, len(batch))
-
-		for i, endpoint := range batch {
-			wg.Add(1)
-			go func(endpoint string, portIdx int) {
-				defer wg.Done()
-				time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
-				proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 10808+portIdx)))
-				transport := &http.Transport{
-					Proxy: http.ProxyURL(proxyURL),
-				}
-				transports[portIdx] = transport
-
-				const tries = 3
-				var successCount int
-				var totalLatency int64
-
-				var innerWg sync.WaitGroup
-				latencies := make(chan int64, tries)
-
-				for t := range tries {
-					innerWg.Add(1)
-					go func(delay int) {
-						defer innerWg.Done()
-						time.Sleep(time.Duration(delay) * time.Millisecond)
-						client := &http.Client{
-							Timeout:   1 * time.Second,
-							Transport: transport,
-						}
-
-						start := time.Now()
-						resp, err := client.Head("http://www.gstatic.com/generate_204")
-						latency := time.Since(start).Milliseconds()
-						if err == nil && resp.StatusCode == 204 {
-							latencies <- latency
-							resp.Body.Close()
-						} else {
-							latencies <- -1
-						}
-					}(t * 100)
-				}
-				innerWg.Wait()
-				close(latencies)
-
-				for l := range latencies {
-					if l >= 0 {
-						successCount++
-						totalLatency += l
-					}
-				}
-
-				if successCount == 0 {
-					log.Printf("%s -> %s\n", fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
-				} else {
-					avgLatency := totalLatency / int64(successCount)
-					lossRate := float64(tries-successCount) / float64(tries) * 100
-					results <- ScanResult{Endpoint: endpoint, Loss: lossRate, Latency: avgLatency}
-					log.Printf("%s -> %s - %s %.2f %% - %s %d ms\n",
-						fmtStr(endpoint, ORANGE, false),
-						fmtStr("Success", GREEN, true),
-						fmtStr("Loss rate:", "", true),
-						lossRate,
-						fmtStr("Avg. Latency:", "", true),
-						avgLatency,
-					)
-				}
-			}(endpoint, i)
-		}
-		wg.Wait()
-		close(results)
-
-		for r := range results {
-			allResults = append(allResults, r)
-		}
-
-		if err := cmd.Process.Kill(); err != nil {
-			return nil, fmt.Errorf("Error killing Xray core: %v\n", err)
-		}
-
-		cmd.Wait()
+	err := createXrayConfig(endpoints, isNoise)
+	if err != nil {
+		return nil, err
 	}
+
+	cmd, err := runXrayCore()
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
+	var wg sync.WaitGroup
+	results := make(chan ScanResult, len(endpoints))
+	transports := make([]*http.Transport, len(endpoints))
+
+	for i, endpoint := range endpoints {
+		wg.Add(1)
+		go func(endpoint string, portIdx int) {
+			defer wg.Done()
+			time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
+			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 1080+portIdx)))
+			transport := &http.Transport{
+				Proxy: http.ProxyURL(proxyURL),
+			}
+			transports[portIdx] = transport
+
+			const tries = 3
+			var successCount int
+			var totalLatency int64
+
+			var innerWg sync.WaitGroup
+			latencies := make(chan int64, tries)
+
+			for t := range tries {
+				innerWg.Add(1)
+				go func(delay int) {
+					defer innerWg.Done()
+					time.Sleep(time.Duration(delay) * time.Millisecond)
+					client := &http.Client{
+						Timeout:   1 * time.Second,
+						Transport: transport,
+					}
+
+					start := time.Now()
+					resp, err := client.Head("http://www.gstatic.com/generate_204")
+					latency := time.Since(start).Milliseconds()
+					if err == nil && resp.StatusCode == 204 {
+						latencies <- latency
+						resp.Body.Close()
+					} else {
+						latencies <- -1
+					}
+				}(t * 200)
+			}
+			innerWg.Wait()
+			close(latencies)
+
+			for l := range latencies {
+				if l >= 0 {
+					successCount++
+					totalLatency += l
+				}
+			}
+
+			if successCount == 0 {
+				log.Printf("%s -> %s\n", fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
+			} else {
+				avgLatency := totalLatency / int64(successCount)
+				lossRate := float64(tries-successCount) / float64(tries) * 100
+				results <- ScanResult{Endpoint: endpoint, Loss: lossRate, Latency: avgLatency}
+				log.Printf("%s -> %s - %s %.2f %% - %s %d ms\n",
+					fmtStr(endpoint, ORANGE, false),
+					fmtStr("Success", GREEN, true),
+					fmtStr("Loss rate:", "", true),
+					lossRate,
+					fmtStr("Avg. Latency:", "", true),
+					avgLatency,
+				)
+			}
+		}(endpoint, i)
+	}
+	wg.Wait()
+	close(results)
+
+	var allResults []ScanResult
+	for r := range results {
+		allResults = append(allResults, r)
+	}
+
+	if err := cmd.Process.Kill(); err != nil {
+		return nil, fmt.Errorf("Error killing Xray core: %v\n", err)
+	}
+
+	cmd.Wait()
 
 	return allResults, nil
 }
@@ -505,14 +307,15 @@ func init() {
 		os.Exit(0)
 	}
 
-	logFiles := []string{ACCESS_LOG, ERROR_LOG}
-	for _, file := range logFiles {
-		dir := filepath.Dir(file)
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			failMessage("Failed to create Xray log directory")
-			log.Fatal(err)
-		}
+	logDir := filepath.Join(CORE_DIR, "log")
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		failMessage("Failed to create Xray log directory")
+		log.Fatal(err)
+	}
 
+	accessLog := filepath.Join(logDir, "access.log")
+	errorLog := filepath.Join(logDir, "error.log")
+	for _, file := range []string{accessLog, errorLog} {
 		file, err := os.Create(file)
 		if err != nil {
 			failMessage("Failed to create Xray log file")
@@ -521,11 +324,13 @@ func init() {
 		defer file.Close()
 	}
 
+	var binary string
 	if runtime.GOOS == "windows" {
-		xrayPath = "core/xray.exe"
+		binary = "xray.exe"
 	} else {
-		xrayPath = "core/xray"
+		binary = "xray"
 	}
+	xrayPath = filepath.Join(CORE_DIR, binary)
 
 	// setDNS()
 	renderHeader()
@@ -580,8 +385,6 @@ func main() {
 		break
 	}
 
-	endpoints := generateEndpoints(count, ipv4, ipv6)
-
 	var useNoise bool
 	fmt.Printf("\n%s Warp is totally blocked on my ISP", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Warp is OK, just need faster endpoints", fmtStr("2.", BLUE, true))
@@ -615,6 +418,7 @@ func main() {
 		break
 	}
 
+	endpoints := generateEndpoints(count, ipv4, ipv6)
 	results, err := scanEndpoints(endpoints, useNoise)
 	if err != nil {
 		failMessage("Scan failed.")

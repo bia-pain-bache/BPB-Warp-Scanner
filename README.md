@@ -8,6 +8,7 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 - Ability to adjust output results count
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
 - Setting quantity of endpoints to scan: `Quick`, `Normal` and `Deep` modes
+- Optional mode to scan with or without UDP noise
 
 ## 💡 How to use
 
