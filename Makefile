@@ -28,7 +28,12 @@ build: pre-build
 	echo "Building for $(GOOS)-$(GOARCH)..."; \
 	outdir="$(OUT_DIR)/$(APP_NAME)-$(GOOS)-$(GOARCH)"; \
 	mkdir -p "$$outdir"; \
-	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o "$$outdir/$(APP_NAME)"; \
+	if [ "$(GOOS)" = "windows" ]; then \
+			ext=".exe"; \
+		else \
+			ext=""; \
+	fi; \
+	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o "$$outdir/$(APP_NAME)$$ext"; \
 	cp LICENSE "$$outdir/"; \
 	cp -r $(CORE_DIR) "$$outdir/"; \
 	archive="$(APP_NAME)-$(GOOS)-$(GOARCH)"; \
