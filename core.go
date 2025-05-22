@@ -183,7 +183,7 @@ func buildConfig(endpoints []string, isNoise bool) XrayConfig {
 			Access:   "core/log/access.log",
 			Error:    "core/log/error.log",
 			Loglevel: "warning",
-			DnsLog:   true,
+			// DnsLog:   true,
 		},
 		Dns: Dns{
 			Servers: []string{

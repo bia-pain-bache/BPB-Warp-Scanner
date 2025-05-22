@@ -346,7 +346,7 @@ func main() {
 		case "4":
 			for {
 				var howMany string
-				fmt.Print("\n- How many endpoints do you want to scan?: ")
+				fmt.Print("\n- Please enter your desired endpoints count: ")
 				fmt.Scanln(&howMany)
 				isValid, c := checkNum(howMany, 1, 10000)
 				if !isValid {
@@ -410,7 +410,7 @@ func main() {
 		var res string
 		fmt.Print("\n- How many Endpoints do you need: ")
 		fmt.Scanln(&res)
-		isValid, num := checkNum(res, 1, count) 
+		isValid, num := checkNum(res, 1, count)
 		if isValid {
 			outCount = num
 			break
