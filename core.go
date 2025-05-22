@@ -111,12 +111,9 @@ func buildHttpInbound(index int) httpInbound {
 	return inbound
 }
 
-func buildWgOutbound(index int, endpoint string, isNoise bool) WgOutbound {
-	domainStrategy := "ForceIP"
-	if ipv4Mode && !ipv6Mode {
-		domainStrategy = "ForceIPv4"
-	}
-	if ipv6Mode && !ipv4Mode {
+func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOutbound {
+	domainStrategy := "ForceIPv4"
+	if !isIPv4 {
 		domainStrategy = "ForceIPv6"
 	}
 
@@ -250,11 +247,18 @@ func buildConfig(endpoints []string, isNoise bool) XrayConfig {
 		config.Outbounds = append(config.Outbounds, udpNoiseOutbound)
 	}
 
+	count := len(endpoints)
+	isIPv4 := ipv4Mode
 	for index, endpoint := range endpoints {
 		inbound := buildHttpInbound(index)
 		config.Inbounds = append(config.Inbounds, inbound)
-		outbound := buildWgOutbound(index, endpoint, isNoise)
+
+		if ipv4Mode && ipv6Mode && index >= count/2 {
+			isIPv4 = false
+		}
+		outbound := buildWgOutbound(index, endpoint, isNoise, isIPv4)
 		config.Outbounds = append(config.Outbounds, outbound)
+
 		routingRule := buildRoutingRule(index)
 		config.Routing.Rules = append(config.Routing.Rules, routingRule)
 	}
