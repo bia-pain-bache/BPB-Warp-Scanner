@@ -35,6 +35,8 @@ var (
 	info     = fmtStr("+", "", true)
 	warning  = fmtStr("Warning", RED, true)
 	xrayPath string
+	ipv4Mode bool
+	ipv6Mode bool
 )
 
 type ScanResult struct {
@@ -66,7 +68,7 @@ func renderHeader() {
 	)
 }
 
-func generateEndpoints(count int, ipv4 bool, ipv6 bool) []string {
+func generateEndpoints(count int) []string {
 	ports := []int{
 		500, 854, 859, 864, 878, 880, 890, 891, 894, 903,
 		908, 928, 934, 939, 942, 943, 945, 946, 955, 968,
@@ -88,12 +90,12 @@ func generateEndpoints(count int, ipv4 bool, ipv6 bool) []string {
 	seen := make(map[string]bool)
 
 	ipv4Count, ipv6Count := 0, 0
-	if ipv4 && ipv6 {
+	if ipv4Mode && ipv6Mode {
 		ipv4Count = count / 2
 		ipv6Count = count - ipv4Count
-	} else if ipv4 {
+	} else if ipv4Mode {
 		ipv4Count = count
-	} else if ipv6 {
+	} else if ipv6Mode {
 		ipv6Count = count
 	}
 
@@ -174,30 +176,6 @@ func successMessage(message string) {
 	succMark := fmtStr("✓", GREEN, true)
 	fmt.Printf("\n%s %s\n", succMark, message)
 }
-
-// func setDNS() {
-// 	http.DefaultTransport.(*http.Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-// 		d := net.Dialer{
-// 			Resolver: &net.Resolver{
-// 				PreferGo: true,
-// 				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-// 					conn, err := net.Dial("udp", "8.8.8.8:53")
-// 					if err != nil {
-// 						failMessage("Failed to dial DNS. Please disconnect your VPN and try again...")
-// 						log.Fatal(err)
-// 					}
-// 					return conn, nil
-// 				},
-// 			},
-// 		}
-// 		conn, err := d.DialContext(ctx, network, addr)
-// 		if err != nil {
-// 			failMessage("DNS resolution failed. Please disconnect your VPN and try again...")
-// 			log.Fatal(err)
-// 		}
-// 		return conn, nil
-// 	}
-// }
 
 func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
 	err := createXrayConfig(endpoints, isNoise)
@@ -332,7 +310,6 @@ func init() {
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
 
-	// setDNS()
 	renderHeader()
 }
 
@@ -385,7 +362,6 @@ func main() {
 		}
 		break
 	}
-	var ipv4, ipv6 bool
 	fmt.Printf("\n%s Scan IPv4 only", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Scan IPv6 only", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s IPv4 and IPv6", fmtStr("3.", BLUE, true))
@@ -395,14 +371,14 @@ func main() {
 		fmt.Scanln(&ipVersion)
 		switch ipVersion {
 		case "1":
-			ipv4 = true
-			ipv6 = false
+			ipv4Mode = true
+			ipv6Mode = false
 		case "2":
-			ipv4 = false
-			ipv6 = true
+			ipv4Mode = false
+			ipv6Mode = true
 		case "3":
-			ipv4 = true
-			ipv6 = true
+			ipv4Mode = true
+			ipv6Mode = true
 		default:
 			failMessage("Invalid choice. Please select 1 to 3.")
 			continue
@@ -444,7 +420,7 @@ func main() {
 		}
 	}
 
-	endpoints := generateEndpoints(count, ipv4, ipv6)
+	endpoints := generateEndpoints(count)
 	results, err := scanEndpoints(endpoints, useNoise)
 	if err != nil {
 		failMessage("Scan failed.")
