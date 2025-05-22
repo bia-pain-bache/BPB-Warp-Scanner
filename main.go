@@ -313,14 +313,27 @@ func init() {
 	renderHeader()
 }
 
+func checkNum(num string, min int, max int) (bool, int) {
+	n, err := strconv.Atoi(num)
+	if err != nil {
+		return false, 0
+	} else if n < min || n > max {
+		return false, 0
+	} else {
+		return true, n
+	}
+
+}
+
 func main() {
 
 	fmt.Printf("\n%s Quick scan - 100 endpoints", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Normal scan - 1000 endpoints", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
+	fmt.Printf("\n%s Custom scan - you choose how many endpoints", fmtStr("4.", BLUE, true))
 	var count int
 	for {
-		fmt.Print("\n- Please select scan mode (1-3): ")
+		fmt.Print("\n- Please select scan mode (1-4): ")
 		var mode string
 		fmt.Scanln(&mode)
 		switch mode {
@@ -330,13 +343,25 @@ func main() {
 			count = 1000
 		case "3":
 			count = 10000
+		case "4":
+			for {
+				var howMany string
+				fmt.Print("\n- How many endpoints do you want to scan?: ")
+				fmt.Scanln(&howMany)
+				isValid, c := checkNum(howMany, 1, 10000)
+				if !isValid {
+					failMessage("Invalid input. Please enter a numeric value between 1-10000.")
+				} else {
+					count = c
+					break
+				}
+			}
 		default:
-			failMessage("Invalid choice. Please select 1 to 3.")
+			failMessage("Invalid choice. Please select 1 to 4.")
 			continue
 		}
 		break
 	}
-
 	fmt.Printf("\n%s Scan IPv4 only", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Scan IPv6 only", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s IPv4 and IPv6", fmtStr("3.", BLUE, true))
@@ -385,13 +410,14 @@ func main() {
 		var res string
 		fmt.Print("\n- How many Endpoints do you need: ")
 		fmt.Scanln(&res)
-		num, err := strconv.Atoi(res)
-		if err != nil {
-			failMessage("Invalid input. Please enter a number.")
-			continue
+		isValid, num := checkNum(res, 1, count) 
+		if isValid {
+			outCount = num
+			break
+		} else {
+			errorMessage := fmt.Sprintf("Invalid input. Please enter a numeric value between 1-%d.", count)
+			failMessage(errorMessage)
 		}
-		outCount = num
-		break
 	}
 
 	endpoints := generateEndpoints(count)
