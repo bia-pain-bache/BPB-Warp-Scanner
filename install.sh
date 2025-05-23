@@ -16,7 +16,13 @@ case "$ARCH" in
 esac
 
 BINARY="BPB-Warp-Scanner"
-ARCHIVE="${BINARY}-linux-${ARCH}.tar.gz"
+OS=$(uname -o)
+
+if [[ "$OS" == *Android* ]]; then
+    ARCHIVE="${BINARY}-android-${ARCH}.tar.gz"
+else 
+    ARCHIVE="${BINARY}-linux-${ARCH}.tar.gz"
+fi
 
 if [ -x "./${BINARY}" ]; then
     INSTALLED_VERSION=$("./${BINARY}" --version)
