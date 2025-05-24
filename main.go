@@ -311,6 +311,16 @@ func init() {
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
 
+	path := os.Getenv("PATH")
+	if runtime.GOOS == "android" || strings.Contains(path, "com.termux") {
+		prefix := os.Getenv("PREFIX")
+		certPath := filepath.Join(prefix, "etc/tls/cert.pem")
+		if err := os.Setenv("SSL_CERT_FILE", certPath); err != nil {
+			failMessage("Failed to set Termux cert file.")
+			log.Fatalln(err)
+		}
+	}
+
 	renderHeader()
 }
 
