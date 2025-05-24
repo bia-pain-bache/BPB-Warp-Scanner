@@ -103,7 +103,7 @@ var xrayConfig = filepath.Join(CORE_DIR, "config.json")
 func buildHttpInbound(index int) httpInbound {
 	inbound := httpInbound{
 		Listen:   "127.0.0.1",
-		Port:     1080 + index,
+		Port:     CORE_INIT_PORT + index,
 		Protocol: "http",
 		Tag:      fmt.Sprintf("http-in-%d", index+1),
 	}
@@ -111,7 +111,7 @@ func buildHttpInbound(index int) httpInbound {
 	return inbound
 }
 
-func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOutbound {
+func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool, params WarpParams) WgOutbound {
 	domainStrategy := "ForceIPv4"
 	if !isIPv4 {
 		domainStrategy = "ForceIPv6"
@@ -122,7 +122,7 @@ func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOu
 		Settings: Settings{
 			Address: []string{
 				"172.16.0.2/32",
-				"2606:4700:110:844c:42a:316b:f0a4:c524/128",
+				params.IPv6,
 			},
 			Mtu:         1280,
 			NoKernelTun: true,
@@ -130,15 +130,11 @@ func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOu
 				{
 					Endpoint:  endpoint,
 					KeepAlive: 5,
-					PublicKey: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+					PublicKey: params.PublicKey,
 				},
 			},
-			Reserved: []int{
-				120,
-				63,
-				135,
-			},
-			SecretKey: "aBLe8/f8yno5xxXZKGLvUwLs6iWLOH5BSZf3AWH7yWk=",
+			Reserved:  params.Reserved,
+			SecretKey: params.PrivateKey,
 		},
 		DomainStrategy: domainStrategy,
 		Tag:            fmt.Sprintf("proxy-%d", index+1),
@@ -165,7 +161,7 @@ func buildRoutingRule(index int) RoutingRule {
 	}
 }
 
-func buildConfig(endpoints []string, isNoise bool) XrayConfig {
+func buildConfig(endpoints []string, isNoise bool) (XrayConfig, error) {
 	queryStrategy := "UseIP"
 	if ipv4Mode && !ipv6Mode {
 		queryStrategy = "UseIPv4"
@@ -179,7 +175,7 @@ func buildConfig(endpoints []string, isNoise bool) XrayConfig {
 		Log: Log{
 			Access:   "core/log/access.log",
 			Error:    "core/log/error.log",
-			Loglevel: "warning",
+			Loglevel: "info",
 			// DnsLog:   true,
 		},
 		Dns: Dns{
@@ -247,6 +243,11 @@ func buildConfig(endpoints []string, isNoise bool) XrayConfig {
 		config.Outbounds = append(config.Outbounds, udpNoiseOutbound)
 	}
 
+	params, err := getWarpParams()
+	if err != nil {
+		return XrayConfig{}, err
+	}
+
 	count := len(endpoints)
 	isIPv4 := ipv4Mode
 	for index, endpoint := range endpoints {
@@ -256,18 +257,22 @@ func buildConfig(endpoints []string, isNoise bool) XrayConfig {
 		if ipv4Mode && ipv6Mode && index >= count/2 {
 			isIPv4 = false
 		}
-		outbound := buildWgOutbound(index, endpoint, isNoise, isIPv4)
+		outbound := buildWgOutbound(index, endpoint, isNoise, isIPv4, params)
 		config.Outbounds = append(config.Outbounds, outbound)
 
 		routingRule := buildRoutingRule(index)
 		config.Routing.Rules = append(config.Routing.Rules, routingRule)
 	}
 
-	return config
+	return config, nil
 }
 
 func createXrayConfig(endpoints []string, isNoise bool) error {
-	config := buildConfig(endpoints, isNoise)
+	config, err := buildConfig(endpoints, isNoise)
+	if err != nil {
+		return fmt.Errorf("Error building Xray config: %v\n", err)
+	}
+
 	jsonBytes, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
 		return fmt.Errorf("JSON marshal error: %v\n", err)

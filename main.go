@@ -21,11 +21,12 @@ import (
 )
 
 const (
-	RED      = "1"
-	GREEN    = "2"
-	ORANGE   = "208"
-	BLUE     = "39"
-	CORE_DIR = "core"
+	RED            = "1"
+	GREEN          = "2"
+	ORANGE         = "208"
+	BLUE           = "39"
+	CORE_DIR       = "core"
+	CORE_INIT_PORT = 1080
 )
 
 var (
@@ -121,7 +122,7 @@ func generateEndpoints(count int) []string {
 		}
 	}
 
-	message := fmt.Sprintf("Generated %d endpoints to test\n", len(endpoints))
+	message := fmt.Sprintf("Generated %d endpoints to test", len(endpoints))
 	successMessage(message)
 	return endpoints
 }
@@ -198,7 +199,7 @@ func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
 		go func(endpoint string, portIdx int) {
 			defer wg.Done()
 			time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
-			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 1080+portIdx)))
+			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", CORE_INIT_PORT+portIdx)))
 			transport := &http.Transport{
 				Proxy: http.ProxyURL(proxyURL),
 			}
@@ -326,7 +327,6 @@ func checkNum(num string, min int, max int) (bool, int) {
 }
 
 func main() {
-
 	fmt.Printf("\n%s Quick scan - 100 endpoints", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Normal scan - 1000 endpoints", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
@@ -421,6 +421,7 @@ func main() {
 	}
 
 	endpoints := generateEndpoints(count)
+
 	results, err := scanEndpoints(endpoints, useNoise)
 	if err != nil {
 		failMessage("Scan failed.")
