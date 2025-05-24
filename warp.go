@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"golang.org/x/crypto/curve25519"
 )
 
 type KeyPair struct {
@@ -37,26 +39,30 @@ type WarpParams struct {
 	PrivateKey string
 }
 
-func generatePrivateKeyBase64() (string, error) {
-	var privateKey [32]byte
-
-	_, err := rand.Read(privateKey[:])
-	if err != nil {
-		return "", err
+func GenerateWireGuardKeyPair() (publicKey, privateKey string, err error) {
+	privateKeyBytes := make([]byte, curve25519.ScalarSize)
+	if _, err = rand.Read(privateKeyBytes); err != nil {
+		return "", "", fmt.Errorf("Error generating wireguard private key: %w", err)
 	}
 
-	privateKey[0] &= 248
-	privateKey[31] &= 127
-	privateKey[31] |= 64
+	privateKeyBytes[0] &= 248
+	privateKeyBytes[31] &= 127
+	privateKeyBytes[31] |= 64
 
-	return base64.StdEncoding.EncodeToString(privateKey[:]), nil
+	var publicKeyBytes [32]byte
+	curve25519.ScalarBaseMult(&publicKeyBytes, (*[32]byte)(privateKeyBytes))
+
+	publicKey = base64.StdEncoding.EncodeToString(publicKeyBytes[:])
+	privateKey = base64.StdEncoding.EncodeToString(privateKeyBytes)
+
+	return publicKey, privateKey, nil
 }
 
 func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 	payload := map[string]interface{}{
 		"install_id":   "",
 		"fcm_token":    "",
-		"tos":          time.Now().UTC().Format(time.RFC3339),
+		"tos":          time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
 		"type":         "Android",
 		"model":        "PC",
 		"locale":       "en_US",
@@ -124,16 +130,16 @@ func extractWarpParams(config WarpConfig, privateKey string) (WarpParams, error)
 }
 
 func getWarpParams() (WarpParams, error) {
-	PrivateKey, err := generatePrivateKeyBase64()
+	PublicKey, PrivateKey, err := GenerateWireGuardKeyPair()
 	if err != nil {
 		return WarpParams{}, err
 	}
 
-	config, err := fetchWarpConfig(PrivateKey)
+	config, err := fetchWarpConfig(PublicKey)
 	if err != nil {
 		return WarpParams{}, err
 	}
-	successMessage("Registered identical warp config\n")
+	successMessage("Registered identical warp account.\n")
 
 	warpConfig, err := extractWarpParams(config, PrivateKey)
 	if err != nil {

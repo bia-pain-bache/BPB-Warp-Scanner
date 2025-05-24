@@ -12,6 +12,11 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 
 ## 💡 How to use
 
+> [!WARNING]
+> Please disconnect your VPN before scanning.
+>
+> In windwos you should totally exit v2rayN from taskbar, clearing system proxy is not enough.
+
 ### Windows - Darwin
 
 Based on your operating system architecture, [download the ZIP file](https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest), unzip it, and run the `BPB-Warp-Scanner`.
