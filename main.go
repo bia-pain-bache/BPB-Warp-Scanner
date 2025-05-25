@@ -122,7 +122,7 @@ func generateEndpoints(count int) []string {
 		}
 	}
 
-	message := fmt.Sprintf("Generated %d endpoints to test", len(endpoints))
+	message := fmt.Sprintf("Generated %d endpoints to test.", len(endpoints))
 	successMessage(message)
 	return endpoints
 }
@@ -288,7 +288,7 @@ func init() {
 
 	logDir := filepath.Join(CORE_DIR, "log")
 	if err := os.MkdirAll(logDir, 0755); err != nil {
-		failMessage("Failed to create Xray log directory")
+		failMessage("Failed to create Xray log directory.")
 		log.Fatal(err)
 	}
 
@@ -297,7 +297,7 @@ func init() {
 	for _, file := range []string{accessLog, errorLog} {
 		file, err := os.Create(file)
 		if err != nil {
-			failMessage("Failed to create Xray log file")
+			failMessage("Failed to create Xray log file.")
 			log.Fatal(err)
 		}
 		defer file.Close()
@@ -310,6 +310,17 @@ func init() {
 		binary = "xray"
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
+
+	if _, err := os.Stat(xrayPath); err != nil {
+		failMessage("Xray core not found.")
+		log.Fatal(err)
+	}
+
+	err := os.Chmod(xrayPath, 0755)
+	if err != nil {
+		failMessage("Failed to set Xray core permissions.")
+		log.Fatal(err)
+	}
 
 	path := os.Getenv("PATH")
 	if runtime.GOOS == "android" || strings.Contains(path, "com.termux") {

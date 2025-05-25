@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"time"
 
@@ -71,32 +73,57 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 	}
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error marshaling warp reg payload: %v\n", err)
+		return WarpConfig{}, fmt.Errorf("Error marshaling warp reg payload: %w", err)
+	}
+
+	dialer := &net.Dialer{
+		Timeout: 5 * time.Second,
+		Resolver: &net.Resolver{
+			PreferGo: true,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				d := net.Dialer{
+					Timeout: time.Second * 3,
+				}
+				return d.DialContext(ctx, "udp", "8.8.8.8:53")
+			},
+		},
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			DialContext:           dialer.DialContext,
+			TLSHandshakeTimeout:   3 * time.Second,
+			ResponseHeaderTimeout: 5 * time.Second,
+		},
+		Timeout: 5 * time.Second,
 	}
 
 	apiBaseUrl := "https://api.cloudflareclient.com/v0a4005/reg"
 	req, err := http.NewRequest("POST", apiBaseUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error registering warp: %v\n", err)
+		return WarpConfig{}, fmt.Errorf("Error registering warp: %w", err)
 	}
 	req.Header.Set("User-Agent", "insomnia/8.6.1")
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error registering warp: %v\n", err)
+		return WarpConfig{}, fmt.Errorf("Error registering warp: %w", err)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode >= 400 {
+		return WarpConfig{}, fmt.Errorf("HTTP error: %w", err)
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error reading warp config: %v\n", err)
+		return WarpConfig{}, fmt.Errorf("Error reading warp config: %w", err)
 	}
 
 	var result WarpConfig
 	if err := json.Unmarshal(body, &result); err != nil {
-		return WarpConfig{}, fmt.Errorf("failed to parse API response: %v", err)
+		return WarpConfig{}, fmt.Errorf("failed to parse API response: %w", err)
 	}
 
 	return result, nil
@@ -105,7 +132,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 func base64ToDecimal(base64Str string) ([]int, error) {
 	decoded, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
-		return nil, fmt.Errorf("Error decoding reserved: %v\n", err)
+		return nil, fmt.Errorf("Error decoding reserved: %w", err)
 	}
 
 	decimalArray := make([]int, len(decoded))
@@ -118,7 +145,7 @@ func base64ToDecimal(base64Str string) ([]int, error) {
 func extractWarpParams(config WarpConfig, privateKey string) (WarpParams, error) {
 	reserved, err := base64ToDecimal(config.Config.ClientID)
 	if err != nil {
-		return WarpParams{}, fmt.Errorf("Error extracting warp account: %v\n", err)
+		return WarpParams{}, fmt.Errorf("Error extracting warp account: %w", err)
 	}
 
 	return WarpParams{
@@ -139,7 +166,7 @@ func getWarpParams() (WarpParams, error) {
 	if err != nil {
 		return WarpParams{}, err
 	}
-	successMessage("Registered identical warp account.\n")
+	successMessage("Registered unique warp account.\n")
 
 	warpConfig, err := extractWarpParams(config, PrivateKey)
 	if err != nil {
