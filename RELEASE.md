@@ -1,6 +1,7 @@
 # Bug fixes and Improvements
 
-Added Custom UDP noise configuration to scanner, the default noise is like BPB Panel default UDP noise:
+- Revised Wireguard MTU based on IP version.
+- Added Custom UDP noise configuration to scanner, the default noise is like BPB Panel default UDP noise:
 
 ```text
 type: Random
@@ -9,4 +10,4 @@ Delay: 1-5 ms
 Count: 5
 ```
 
-However, if this is not working well on your ISP, you can set desired settings. For more information please read [Xray core UDP noises docs](https://xtls.github.io/config/outbounds/freedom.html#outboundconfigurationobject).
+However, if this is not working well on your ISP, you can set desired settings in wizard. For more information please read [Xray core UDP noises docs](https://xtls.github.io/config/outbounds/freedom.html#outboundconfigurationobject).
