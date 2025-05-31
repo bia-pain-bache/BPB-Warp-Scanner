@@ -166,7 +166,7 @@ func getWarpParams() (WarpParams, error) {
 	if err != nil {
 		return WarpParams{}, err
 	}
-	successMessage("Registered unique warp account.\n")
+	successMessage("Registered a new warp account.\n")
 
 	warpConfig, err := extractWarpParams(config, PrivateKey)
 	if err != nil {
