@@ -114,8 +114,10 @@ func buildHttpInbound(index int) httpInbound {
 
 func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOutbound {
 	domainStrategy := "ForceIPv4"
+	mtu := 1440
 	if !isIPv4 {
 		domainStrategy = "ForceIPv6"
+		mtu = 1420
 	}
 
 	outbound := WgOutbound{
@@ -125,7 +127,7 @@ func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool) WgOu
 				"172.16.0.2/32",
 				"2606:4700:110:844c:42a:316b:f0a4:c524/128",
 			},
-			Mtu:         1280,
+			Mtu:         mtu,
 			NoKernelTun: true,
 			Peers: []Peers{
 				{
