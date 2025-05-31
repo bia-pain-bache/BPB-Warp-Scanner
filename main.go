@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -21,12 +23,11 @@ import (
 )
 
 const (
-	RED            = "1"
-	GREEN          = "2"
-	ORANGE         = "208"
-	BLUE           = "39"
-	CORE_DIR       = "core"
-	CORE_INIT_PORT = 1080
+	RED      = "1"
+	GREEN    = "2"
+	ORANGE   = "208"
+	BLUE     = "39"
+	CORE_DIR = "core"
 )
 
 var (
@@ -122,7 +123,7 @@ func generateEndpoints(count int) []string {
 		}
 	}
 
-	message := fmt.Sprintf("Generated %d endpoints to test.", len(endpoints))
+	message := fmt.Sprintf("Generated %d endpoints to test\n", len(endpoints))
 	successMessage(message)
 	return endpoints
 }
@@ -178,8 +179,8 @@ func successMessage(message string) {
 	fmt.Printf("\n%s %s\n", succMark, message)
 }
 
-func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
-	err := createXrayConfig(endpoints, isNoise)
+func scanEndpoints(endpoints []string, isNoise bool, udpNoise Noise) ([]ScanResult, error) {
+	err := createXrayConfig(endpoints, isNoise, udpNoise)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +200,7 @@ func scanEndpoints(endpoints []string, isNoise bool) ([]ScanResult, error) {
 		go func(endpoint string, portIdx int) {
 			defer wg.Done()
 			time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
-			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", CORE_INIT_PORT+portIdx)))
+			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 1080+portIdx)))
 			transport := &http.Transport{
 				Proxy: http.ProxyURL(proxyURL),
 			}
@@ -288,7 +289,7 @@ func init() {
 
 	logDir := filepath.Join(CORE_DIR, "log")
 	if err := os.MkdirAll(logDir, 0755); err != nil {
-		failMessage("Failed to create Xray log directory.")
+		failMessage("Failed to create Xray log directory")
 		log.Fatal(err)
 	}
 
@@ -297,7 +298,7 @@ func init() {
 	for _, file := range []string{accessLog, errorLog} {
 		file, err := os.Create(file)
 		if err != nil {
-			failMessage("Failed to create Xray log file.")
+			failMessage("Failed to create Xray log file")
 			log.Fatal(err)
 		}
 		defer file.Close()
@@ -311,27 +312,6 @@ func init() {
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
 
-	if _, err := os.Stat(xrayPath); err != nil {
-		failMessage("Xray core not found.")
-		log.Fatal(err)
-	}
-
-	err := os.Chmod(xrayPath, 0755)
-	if err != nil {
-		failMessage("Failed to set Xray core permissions.")
-		log.Fatal(err)
-	}
-
-	path := os.Getenv("PATH")
-	if runtime.GOOS == "android" || strings.Contains(path, "com.termux") {
-		prefix := os.Getenv("PREFIX")
-		certPath := filepath.Join(prefix, "etc/tls/cert.pem")
-		if err := os.Setenv("SSL_CERT_FILE", certPath); err != nil {
-			failMessage("Failed to set Termux cert file.")
-			log.Fatalln(err)
-		}
-	}
-
 	renderHeader()
 }
 
@@ -344,10 +324,51 @@ func checkNum(num string, min int, max int) (bool, int) {
 	} else {
 		return true, n
 	}
+}
 
+func isValidHex(value string) bool {
+	matched, err := regexp.MatchString(`^[0-9a-fA-F]+$`, value)
+	if err != nil {
+		return false
+	}
+
+	return len(value) > 0 && matched
+}
+
+func isValidBase64(value string) bool {
+	if len(value) == 0 {
+		return false
+	}
+
+	_, err := base64.StdEncoding.DecodeString(value)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func isValidRange(value string) bool {
+	if value == "" {
+		return false
+	}
+
+	regex := `^(?:[1-9][0-9]*|[1-9][0-9]*-[1-9][0-9]*)$`
+	matched, err := regexp.MatchString(regex, value)
+	if err != nil {
+		return false
+	}
+
+	split := strings.Split(value, "-")
+	if len(split) == 2 && split[0] > split[1] {
+		return false
+	}
+
+	return matched
 }
 
 func main() {
+
 	fmt.Printf("\n%s Quick scan - 100 endpoints", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Normal scan - 1000 endpoints", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
@@ -426,6 +447,107 @@ func main() {
 		break
 	}
 
+	var udpNoise Noise
+	fmt.Printf("\n%s Use default noise", fmtStr("1.", BLUE, true))
+	fmt.Printf("\n%s Setup custom noise", fmtStr("2.", BLUE, true))
+	for {
+		var res string
+		fmt.Print("\n- Please select (1 or 2): ")
+		fmt.Scanln(&res)
+		switch res {
+		case "1":
+			udpNoise = Noise{
+				Type:   "rand",
+				Packet: "50-100",
+				Delay:  "1-5",
+				Count:  5,
+			}
+		case "2":
+			fmt.Printf("\n%s Base64", fmtStr("1.", BLUE, true))
+			fmt.Printf("\n%s Hex", fmtStr("2.", BLUE, true))
+			fmt.Printf("\n%s String", fmtStr("3.", BLUE, true))
+			fmt.Printf("\n%s Random", fmtStr("4.", BLUE, true))
+			var noiseType, packet, delay, count string
+			for {
+				var res string
+				fmt.Print("\n- Please select UDP noise type (1-4): ")
+				fmt.Scanln(&res)
+				switch res {
+				case "1":
+					noiseType = "base64"
+				case "2":
+					noiseType = "hex"
+				case "3":
+					noiseType = "str"
+				case "4":
+					noiseType = "rand"
+				default:
+					failMessage("Invalid choice. Please select 1-4.")
+					continue
+				}
+				break
+			}
+
+			for {
+				fmt.Printf("\n- Please enter a %s packet: ", fmtStr(noiseType, GREEN, true))
+				fmt.Scanln(&packet)
+				switch noiseType {
+				case "base64":
+					if !isValidBase64(packet) {
+						msg := fmt.Sprintf("Invalid packet for Base64 type, please enter a valid Base64 value like %s.", fmtStr("aGVsbG8gd29ybGQ=", GREEN, true))
+						failMessage(msg)
+						continue
+					}
+				case "hex":
+					if !isValidHex(packet) {
+						msg := fmt.Sprintf("Invalid packet for Hex type, please enter a valid Hex value like %s.", fmtStr("68656c6c6f20776f726c64", GREEN, true))
+						failMessage(msg)
+						continue
+					}
+				case "rand":
+					if !isValidRange(packet) {
+						msg := fmt.Sprintf("Invalid packet for Random type, please enter packet length, it can be a fixed number or an interval like %s.", fmtStr("50-100", GREEN, true))
+						failMessage(msg)
+						continue
+					}
+				}
+				break
+			}
+
+			for {
+				fmt.Printf("\n- Please enter noise delay in miliseconds, it can be a fixed number or an interval like %s: ", fmtStr("1-5", GREEN, true))
+				fmt.Scanln(&delay)
+				if !isValidRange(delay) {
+					failMessage("Invalid delay value, please try again.")
+					continue
+				}
+				break
+			}
+
+			for {
+				fmt.Printf("\n- Please enter number of noise packets (up to 50): ")
+				fmt.Scanln(&count)
+				isValid, noiseCount := checkNum(count, 1, 50)
+				if !isValid {
+					failMessage("Invalid value. Please enter a numeric value between 1 and 50.")
+					continue
+				}
+				udpNoise = Noise{
+					Type:   noiseType,
+					Packet: packet,
+					Delay:  delay,
+					Count:  noiseCount,
+				}
+				break
+			}
+
+		default:
+			failMessage("Invalid choice. Please select 1 or 2.")
+			continue
+		}
+		break
+	}
+
 	var outCount int
 	for {
 		var res string
@@ -442,8 +564,7 @@ func main() {
 	}
 
 	endpoints := generateEndpoints(count)
-
-	results, err := scanEndpoints(endpoints, useNoise)
+	results, err := scanEndpoints(endpoints, useNoise, udpNoise)
 	if err != nil {
 		failMessage("Scan failed.")
 		log.Fatal(err)
