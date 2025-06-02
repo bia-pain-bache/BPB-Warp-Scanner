@@ -4,11 +4,23 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 
 ## Features
 
+- Registers a new Warp config per scan
 - Performs real delay test instead of ping to extract real endpoints
 - Ability to adjust output results count
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
 - Setting quantity of endpoints to scan: `Quick`, `Normal` and `Deep` modes
 - Optional mode to scan with or without UDP noise
+- Full noise configuration options with `Base64`, `Hex`, `String` and `Random` modes
+
+> [!TIP]
+> For most reliable results, Please set noise configuration exactly similar to your BPB Panel v2ray noise.  
+> The default noise is like BPB Panel:  
+> ```text
+> type: Random
+> Packet: 50-100
+> Delay: 1-5 ms
+> Count: 5
+> ```
 
 ## 💡 How to use
 
