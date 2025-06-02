@@ -30,6 +30,16 @@ const (
 	CORE_DIR = "core"
 )
 
+type ScanConfig struct {
+	EndpointCount int
+	Ipv4Mode      bool
+	Ipv6Mode      bool
+	UseNoise      bool
+	UdpNoise      Noise
+	Endpoints     []string
+	OutputCount   int
+}
+
 var (
 	VERSION  = "dev"
 	title    = fmtStr("●", BLUE, true)
@@ -37,9 +47,20 @@ var (
 	info     = fmtStr("+", "", true)
 	warning  = fmtStr("Warning", RED, true)
 	xrayPath string
-	ipv4Mode bool
-	ipv6Mode bool
 )
+
+var scanConfig = ScanConfig{
+	EndpointCount: 100,
+	Ipv4Mode:      true,
+	Ipv6Mode:      false,
+	UseNoise:      true,
+	UdpNoise: Noise{
+		Type:   "rand",
+		Packet: "50-100",
+		Delay:  "1-5",
+		Count:  5,
+	},
+}
 
 type ScanResult struct {
 	Endpoint string
@@ -70,7 +91,7 @@ func renderHeader() {
 	)
 }
 
-func generateEndpoints(count int) []string {
+func generateEndpoints() {
 	ports := []int{
 		500, 854, 859, 864, 878, 880, 890, 891, 894, 903,
 		908, 928, 934, 939, 942, 943, 945, 946, 955, 968,
@@ -88,17 +109,17 @@ func generateEndpoints(count int) []string {
 	}
 
 	rand.New(rand.NewSource(time.Now().UnixNano()))
-	endpoints := make([]string, 0, count)
+	endpoints := make([]string, 0, scanConfig.EndpointCount)
 	seen := make(map[string]bool)
 
 	ipv4Count, ipv6Count := 0, 0
-	if ipv4Mode && ipv6Mode {
-		ipv4Count = count / 2
-		ipv6Count = count - ipv4Count
-	} else if ipv4Mode {
-		ipv4Count = count
-	} else if ipv6Mode {
-		ipv6Count = count
+	if scanConfig.Ipv4Mode && scanConfig.Ipv6Mode {
+		ipv4Count = scanConfig.EndpointCount / 2
+		ipv6Count = scanConfig.EndpointCount - ipv4Count
+	} else if scanConfig.Ipv4Mode {
+		ipv4Count = scanConfig.EndpointCount
+	} else if scanConfig.Ipv6Mode {
+		ipv6Count = scanConfig.EndpointCount
 	}
 
 	for len(endpoints) < ipv4Count {
@@ -125,7 +146,7 @@ func generateEndpoints(count int) []string {
 
 	message := fmt.Sprintf("Generated %d endpoints to test\n", len(endpoints))
 	successMessage(message)
-	return endpoints
+	scanConfig.Endpoints = endpoints
 }
 
 func must[T any](v T, _ error) T { return v }
@@ -179,8 +200,8 @@ func successMessage(message string) {
 	fmt.Printf("\n%s %s\n", succMark, message)
 }
 
-func scanEndpoints(endpoints []string, isNoise bool, udpNoise Noise) ([]ScanResult, error) {
-	err := createXrayConfig(endpoints, isNoise, udpNoise)
+func scanEndpoints() ([]ScanResult, error) {
+	err := createXrayConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -192,10 +213,10 @@ func scanEndpoints(endpoints []string, isNoise bool, udpNoise Noise) ([]ScanResu
 	}
 
 	var wg sync.WaitGroup
-	results := make(chan ScanResult, len(endpoints))
-	transports := make([]*http.Transport, len(endpoints))
+	results := make(chan ScanResult, len(scanConfig.Endpoints))
+	transports := make([]*http.Transport, len(scanConfig.Endpoints))
 
-	for i, endpoint := range endpoints {
+	for i, endpoint := range scanConfig.Endpoints {
 		wg.Add(1)
 		go func(endpoint string, portIdx int) {
 			defer wg.Done()
@@ -312,6 +333,16 @@ func init() {
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
 
+	path := os.Getenv("PATH")
+	if runtime.GOOS == "android" || strings.Contains(path, "com.termux") {
+		prefix := os.Getenv("PREFIX")
+		certPath := filepath.Join(prefix, "etc/tls/cert.pem")
+		if err := os.Setenv("SSL_CERT_FILE", certPath); err != nil {
+			failMessage("Failed to set Termux cert file.")
+			log.Fatalln(err)
+		}
+	}
+
 	renderHeader()
 }
 
@@ -368,23 +399,21 @@ func isValidRange(value string) bool {
 }
 
 func main() {
-
 	fmt.Printf("\n%s Quick scan - 100 endpoints", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Normal scan - 1000 endpoints", fmtStr("2.", BLUE, true))
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
 	fmt.Printf("\n%s Custom scan - you choose how many endpoints", fmtStr("4.", BLUE, true))
-	var count int
 	for {
 		fmt.Print("\n- Please select scan mode (1-4): ")
 		var mode string
 		fmt.Scanln(&mode)
 		switch mode {
 		case "1":
-			count = 100
+			break
 		case "2":
-			count = 1000
+			scanConfig.EndpointCount = 1000
 		case "3":
-			count = 10000
+			scanConfig.EndpointCount = 10000
 		case "4":
 			for {
 				var howMany string
@@ -394,7 +423,7 @@ func main() {
 				if !isValid {
 					failMessage("Invalid input. Please enter a numeric value between 1-10000.")
 				} else {
-					count = c
+					scanConfig.EndpointCount = c
 					break
 				}
 			}
@@ -413,14 +442,13 @@ func main() {
 		fmt.Scanln(&ipVersion)
 		switch ipVersion {
 		case "1":
-			ipv4Mode = true
-			ipv6Mode = false
+			break
 		case "2":
-			ipv4Mode = false
-			ipv6Mode = true
+			scanConfig.Ipv4Mode = false
+			scanConfig.Ipv6Mode = true
 		case "3":
-			ipv4Mode = true
-			ipv6Mode = true
+			scanConfig.Ipv4Mode = true
+			scanConfig.Ipv6Mode = true
 		default:
 			failMessage("Invalid choice. Please select 1 to 3.")
 			continue
@@ -428,7 +456,6 @@ func main() {
 		break
 	}
 
-	var useNoise bool
 	fmt.Printf("\n%s Warp is totally blocked on my ISP", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Warp is OK, just need faster endpoints", fmtStr("2.", BLUE, true))
 	for {
@@ -437,9 +464,9 @@ func main() {
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
-			useNoise = true
+			break
 		case "2":
-			useNoise = false
+			scanConfig.UseNoise = false
 		default:
 			failMessage("Invalid choice. Please select 1 or 2.")
 			continue
@@ -447,7 +474,6 @@ func main() {
 		break
 	}
 
-	var udpNoise Noise
 	fmt.Printf("\n%s Use default noise", fmtStr("1.", BLUE, true))
 	fmt.Printf("\n%s Setup custom noise", fmtStr("2.", BLUE, true))
 	for {
@@ -456,12 +482,7 @@ func main() {
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
-			udpNoise = Noise{
-				Type:   "rand",
-				Packet: "50-100",
-				Delay:  "1-5",
-				Count:  5,
-			}
+			break
 		case "2":
 			fmt.Printf("\n%s Base64", fmtStr("1.", BLUE, true))
 			fmt.Printf("\n%s Hex", fmtStr("2.", BLUE, true))
@@ -532,7 +553,7 @@ func main() {
 					failMessage("Invalid value. Please enter a numeric value between 1 and 50.")
 					continue
 				}
-				udpNoise = Noise{
+				scanConfig.UdpNoise = Noise{
 					Type:   noiseType,
 					Packet: packet,
 					Delay:  delay,
@@ -548,23 +569,22 @@ func main() {
 		break
 	}
 
-	var outCount int
 	for {
 		var res string
 		fmt.Print("\n- How many Endpoints do you need: ")
 		fmt.Scanln(&res)
-		isValid, num := checkNum(res, 1, count)
+		isValid, num := checkNum(res, 1, scanConfig.EndpointCount)
 		if isValid {
-			outCount = num
+			scanConfig.OutputCount = num
 			break
 		} else {
-			errorMessage := fmt.Sprintf("Invalid input. Please enter a numeric value between 1-%d.", count)
+			errorMessage := fmt.Sprintf("Invalid input. Please enter a numeric value between 1-%d.", scanConfig.EndpointCount)
 			failMessage(errorMessage)
 		}
 	}
 
-	endpoints := generateEndpoints(count)
-	results, err := scanEndpoints(endpoints, useNoise, udpNoise)
+	generateEndpoints()
+	results, err := scanEndpoints()
 	if err != nil {
 		failMessage("Scan failed.")
 		log.Fatal(err)
@@ -583,7 +603,7 @@ func main() {
 		fmt.Printf("Error saving working IPs: %v\n", err)
 	}
 
-	renderEndpoints(results[:min(outCount, len(results))])
+	renderEndpoints(results[:min(scanConfig.OutputCount, len(results))])
 	successMessage("Scan completed.")
 	message := fmt.Sprintf("Found %d endpoints. You can check result.csv for more details.\n", len(results))
 	successMessage(message)

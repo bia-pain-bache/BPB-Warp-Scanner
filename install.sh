@@ -17,10 +17,10 @@ esac
 
 BINARY="BPB-Warp-Scanner"
 ARCHIVE="${BINARY}-linux-${ARCH}.tar.gz"
+LATEST_VERSION=$(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/BPB-Warp-Scanner/main/VERSION)
 
 if [ -x "./${BINARY}" ]; then
     INSTALLED_VERSION=$("./${BINARY}" --version)
-    LATEST_VERSION=$(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/BPB-Warp-Scanner/main/VERSION)
     echo "Installed version: $INSTALLED_VERSION"
     echo "Latest version: ${LATEST_VERSION}"
 
@@ -31,7 +31,7 @@ if [ -x "./${BINARY}" ]; then
         echo "Updating to version ${LATEST_VERSION}..."
     fi
 else
-    echo "Binary not found. Installing version ${LATEST_VERSION}..."
+    echo "Scanner not found on device. Installing version ${LATEST_VERSION}..."
 fi
 
 echo "Downloading ${ARCHIVE}..."

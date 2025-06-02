@@ -112,7 +112,7 @@ func buildHttpInbound(index int) httpInbound {
 	return inbound
 }
 
-func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool, warpConfig WarpParams) WgOutbound {
+func buildWgOutbound(index int, endpoint string, isIPv4 bool, warpConfig WarpParams) WgOutbound {
 	domainStrategy := "ForceIPv4"
 	if !isIPv4 {
 		domainStrategy = "ForceIPv6"
@@ -141,7 +141,7 @@ func buildWgOutbound(index int, endpoint string, isNoise bool, isIPv4 bool, warp
 		Tag:            fmt.Sprintf("proxy-%d", index+1),
 	}
 
-	if isNoise {
+	if scanConfig.UseNoise {
 		outbound.StreamSettings = &StreamSettings{
 			Sockopt: Sockopt{
 				DialerProxy: "udp-noise",
@@ -162,12 +162,12 @@ func buildRoutingRule(index int) RoutingRule {
 	}
 }
 
-func buildConfig(endpoints []string, isNoise bool, udpNoise Noise) (XrayConfig, error) {
+func buildConfig() (XrayConfig, error) {
 	queryStrategy := "UseIP"
-	if ipv4Mode && !ipv6Mode {
+	if scanConfig.Ipv4Mode && !scanConfig.Ipv6Mode {
 		queryStrategy = "UseIPv4"
 	}
-	if ipv6Mode && !ipv4Mode {
+	if scanConfig.Ipv6Mode && !scanConfig.Ipv4Mode {
 		queryStrategy = "UseIPv6"
 	}
 
@@ -200,10 +200,10 @@ func buildConfig(endpoints []string, isNoise bool, udpNoise Noise) (XrayConfig, 
 		},
 	}
 
-	if isNoise {
+	if scanConfig.UseNoise {
 		var noises []Noise
-		for range udpNoise.Count {
-			noises = append(noises, udpNoise)
+		for range scanConfig.UdpNoise.Count {
+			noises = append(noises, scanConfig.UdpNoise)
 		}
 		udpNoiseOutbound := FreedomOutbound{
 			Protocol: "freedom",
@@ -221,16 +221,16 @@ func buildConfig(endpoints []string, isNoise bool, udpNoise Noise) (XrayConfig, 
 		return XrayConfig{}, err
 	}
 
-	count := len(endpoints)
-	isIPv4 := ipv4Mode
-	for index, endpoint := range endpoints {
+	count := len(scanConfig.Endpoints)
+	isIPv4 := scanConfig.Ipv4Mode
+	for index, endpoint := range scanConfig.Endpoints {
 		inbound := buildHttpInbound(index)
 		config.Inbounds = append(config.Inbounds, inbound)
 
-		if ipv4Mode && ipv6Mode && index >= count/2 {
+		if scanConfig.Ipv4Mode && scanConfig.Ipv6Mode && index >= count/2 {
 			isIPv4 = false
 		}
-		outbound := buildWgOutbound(index, endpoint, isNoise, isIPv4, warpConfig)
+		outbound := buildWgOutbound(index, endpoint, isIPv4, warpConfig)
 		config.Outbounds = append(config.Outbounds, outbound)
 
 		routingRule := buildRoutingRule(index)
@@ -240,8 +240,8 @@ func buildConfig(endpoints []string, isNoise bool, udpNoise Noise) (XrayConfig, 
 	return config, nil
 }
 
-func createXrayConfig(endpoints []string, isNoise bool, udpNoise Noise) error {
-	config, err := buildConfig(endpoints, isNoise, udpNoise)
+func createXrayConfig() error {
+	config, err := buildConfig()
 	if err != nil {
 		return fmt.Errorf("Error registering Warp account: %v\n", err)
 	}
