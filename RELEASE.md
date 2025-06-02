@@ -1,6 +1,7 @@
 # Bug fixes and Improvements
 
-Added Custom UDP noise configuration to scanner, the default noise is like BPB Panel default UDP noise:
+- Fixed Termux TLS issue.
+- Added Custom UDP noise configuration to scanner, the default noise is like BPB Panel default UDP noise:
 
 ```text
 type: Random
