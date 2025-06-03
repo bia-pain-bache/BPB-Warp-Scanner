@@ -44,7 +44,7 @@ type WarpParams struct {
 func GenerateWireGuardKeyPair() (publicKey, privateKey string, err error) {
 	privateKeyBytes := make([]byte, curve25519.ScalarSize)
 	if _, err = rand.Read(privateKeyBytes); err != nil {
-		return "", "", fmt.Errorf("Error generating wireguard private key: %w", err)
+		return "", "", fmt.Errorf("error generating wireguard private key: %w", err)
 	}
 
 	privateKeyBytes[0] &= 248
@@ -73,7 +73,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 	}
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error marshaling warp reg payload: %w", err)
+		return WarpConfig{}, fmt.Errorf("error marshaling warp reg payload: %w", err)
 	}
 
 	dialer := &net.Dialer{
@@ -101,14 +101,14 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 	apiBaseUrl := "https://api.cloudflareclient.com/v0a4005/reg"
 	req, err := http.NewRequest("POST", apiBaseUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error registering warp: %w", err)
+		return WarpConfig{}, fmt.Errorf("error registering warp: %w", err)
 	}
 	req.Header.Set("User-Agent", "insomnia/8.6.1")
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error registering warp: %w", err)
+		return WarpConfig{}, fmt.Errorf("error registering warp: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -118,7 +118,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return WarpConfig{}, fmt.Errorf("Error reading warp config: %w", err)
+		return WarpConfig{}, fmt.Errorf("error reading warp config: %w", err)
 	}
 
 	var result WarpConfig
@@ -132,7 +132,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 func base64ToDecimal(base64Str string) ([]int, error) {
 	decoded, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
-		return nil, fmt.Errorf("Error decoding reserved: %w", err)
+		return nil, fmt.Errorf("error decoding reserved: %w", err)
 	}
 
 	decimalArray := make([]int, len(decoded))
@@ -145,7 +145,7 @@ func base64ToDecimal(base64Str string) ([]int, error) {
 func extractWarpParams(config WarpConfig, privateKey string) (WarpParams, error) {
 	reserved, err := base64ToDecimal(config.Config.ClientID)
 	if err != nil {
-		return WarpParams{}, fmt.Errorf("Error extracting warp account: %w", err)
+		return WarpParams{}, fmt.Errorf("error extracting warp account: %w", err)
 	}
 
 	return WarpParams{

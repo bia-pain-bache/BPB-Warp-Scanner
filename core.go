@@ -243,22 +243,22 @@ func buildConfig() (XrayConfig, error) {
 func createXrayConfig() error {
 	config, err := buildConfig()
 	if err != nil {
-		return fmt.Errorf("Error registering Warp account: %v\n", err)
+		return fmt.Errorf("error registering Warp account: %w", err)
 	}
 
 	jsonBytes, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
-		return fmt.Errorf("JSON marshal error: %v\n", err)
+		return fmt.Errorf("json marshal error: %w", err)
 	}
 
 	file, err := os.Create(xrayConfig)
 	if err != nil {
-		return fmt.Errorf("Error creating config.json: %v\n", err)
+		return fmt.Errorf("error creating config.json: %w", err)
 	}
 	defer file.Close()
 
 	if _, err := file.Write(jsonBytes); err != nil {
-		return fmt.Errorf("Error writing config.json: %v\n", err)
+		return fmt.Errorf("error writing config.json: %w", err)
 	}
 
 	return nil
@@ -267,10 +267,10 @@ func createXrayConfig() error {
 func runXrayCore() (*exec.Cmd, error) {
 	cmd := exec.Command(xrayPath, "-c", xrayConfig)
 	if err := cmd.Start(); err != nil {
-		return nil, fmt.Errorf("Error starting XRay core: %v\n", err)
+		return nil, fmt.Errorf("error starting XRay core: %v", err)
 	}
 
-	fmt.Println("Waiting for XRay core to initialize...")
+	fmt.Printf("%s Waiting for XRay core to initialize...\n\n", prompt)
 	time.Sleep(1000 * time.Millisecond)
 	return cmd, nil
 }

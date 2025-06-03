@@ -42,10 +42,12 @@ type ScanConfig struct {
 
 var (
 	VERSION  = "dev"
-	title    = fmtStr("●", BLUE, true)
-	ask      = fmtStr("-", "", true)
-	info     = fmtStr("+", "", true)
-	warning  = fmtStr("Warning", RED, true)
+	prompt   = fmtStr("●", GREEN, true)
+	errMark  = fmtStr("✗", RED, true)
+	succMark = fmtStr("✓", GREEN, true)
+	// ask      = fmtStr("-", "", true)
+	// info     = fmtStr("+", "", true)
+	// warning  = fmtStr("Warning", RED, true)
 	xrayPath string
 )
 
@@ -144,7 +146,7 @@ func generateEndpoints() {
 		}
 	}
 
-	message := fmt.Sprintf("Generated %d endpoints to test\n", len(endpoints))
+	message := fmt.Sprintf("Generated %d endpoints to test", len(endpoints))
 	successMessage(message)
 	scanConfig.Endpoints = endpoints
 }
@@ -191,12 +193,10 @@ func renderEndpoints(results []ScanResult) {
 }
 
 func failMessage(message string) {
-	errMark := fmtStr("✗", RED, true)
 	fmt.Printf("%s %s\n", errMark, message)
 }
 
 func successMessage(message string) {
-	succMark := fmtStr("✓", GREEN, true)
 	fmt.Printf("\n%s %s\n", succMark, message)
 }
 
@@ -266,12 +266,13 @@ func scanEndpoints() ([]ScanResult, error) {
 			}
 
 			if successCount == 0 {
-				log.Printf("%s -> %s\n", fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
+				log.Printf("[%d] %s -> %s\n", i+1, fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
 			} else {
 				avgLatency := totalLatency / int64(successCount)
 				lossRate := float64(tries-successCount) / float64(tries) * 100
 				results <- ScanResult{Endpoint: endpoint, Loss: lossRate, Latency: avgLatency}
-				log.Printf("%s -> %s - %s %.2f %% - %s %d ms\n",
+				log.Printf("[%d] %s -> %s - %s %.2f %% - %s %d ms\n",
+					i+1,
 					fmtStr(endpoint, ORANGE, false),
 					fmtStr("Success", GREEN, true),
 					fmtStr("Loss rate:", "", true),
@@ -291,7 +292,7 @@ func scanEndpoints() ([]ScanResult, error) {
 	}
 
 	if err := cmd.Process.Kill(); err != nil {
-		return nil, fmt.Errorf("Error killing Xray core: %v\n", err)
+		return nil, fmt.Errorf("error killing Xray core: %w", err)
 	}
 
 	cmd.Wait()
@@ -383,11 +384,7 @@ func isValidBase64(value string) bool {
 	}
 
 	_, err := base64.StdEncoding.DecodeString(value)
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func isValidRange(value string) bool {
@@ -415,12 +412,11 @@ func main() {
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
 	fmt.Printf("\n%s Custom scan - you choose how many endpoints", fmtStr("4.", BLUE, true))
 	for {
-		fmt.Print("\n- Please select scan mode (1-4): ")
+		fmt.Printf("\n%s Please select scan mode (1-4): ", prompt)
 		var mode string
 		fmt.Scanln(&mode)
 		switch mode {
 		case "1":
-			break
 		case "2":
 			scanConfig.EndpointCount = 1000
 		case "3":
@@ -428,7 +424,7 @@ func main() {
 		case "4":
 			for {
 				var howMany string
-				fmt.Print("\n- Please enter your desired endpoints count: ")
+				fmt.Printf("\n%s Please enter your desired endpoints count: ", prompt)
 				fmt.Scanln(&howMany)
 				isValid, c := checkNum(howMany, 1, 10000)
 				if !isValid {
@@ -449,11 +445,10 @@ func main() {
 	fmt.Printf("\n%s IPv4 and IPv6", fmtStr("3.", BLUE, true))
 	for {
 		var ipVersion string
-		fmt.Print("\n- Please select IP version (1-3): ")
+		fmt.Printf("\n%s Please select IP version (1-3): ", prompt)
 		fmt.Scanln(&ipVersion)
 		switch ipVersion {
 		case "1":
-			break
 		case "2":
 			scanConfig.Ipv4Mode = false
 			scanConfig.Ipv6Mode = true
@@ -471,11 +466,10 @@ func main() {
 	fmt.Printf("\n%s Warp is OK, just need faster endpoints", fmtStr("2.", BLUE, true))
 	for {
 		var res string
-		fmt.Print("\n- Please select your situation (1 or 2): ")
+		fmt.Printf("\n%s Please select your situation (1 or 2): ", prompt)
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
-			break
 		case "2":
 			scanConfig.UseNoise = false
 		default:
@@ -489,11 +483,10 @@ func main() {
 	fmt.Printf("\n%s Setup custom noise", fmtStr("2.", BLUE, true))
 	for {
 		var res string
-		fmt.Print("\n- Please select (1 or 2): ")
+		fmt.Printf("\n%s Please select (1 or 2): ", prompt)
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
-			break
 		case "2":
 			fmt.Printf("\n%s Base64", fmtStr("1.", BLUE, true))
 			fmt.Printf("\n%s Hex", fmtStr("2.", BLUE, true))
@@ -502,7 +495,7 @@ func main() {
 			var noiseType, packet, delay, count string
 			for {
 				var res string
-				fmt.Print("\n- Please select UDP noise type (1-4): ")
+				fmt.Printf("\n%s Please select UDP noise type (1-4): ", prompt)
 				fmt.Scanln(&res)
 				switch res {
 				case "1":
@@ -521,7 +514,7 @@ func main() {
 			}
 
 			for {
-				fmt.Printf("\n- Please enter a %s packet: ", fmtStr(noiseType, GREEN, true))
+				fmt.Printf("\n%s Please enter a %s packet: ", prompt, fmtStr(noiseType, GREEN, true))
 				fmt.Scanln(&packet)
 				switch noiseType {
 				case "base64":
@@ -547,7 +540,7 @@ func main() {
 			}
 
 			for {
-				fmt.Printf("\n- Please enter noise delay in miliseconds, it can be a fixed number or an interval like %s: ", fmtStr("1-5", GREEN, true))
+				fmt.Printf("\n%s Please enter noise delay in miliseconds, it can be a fixed number or an interval like %s: ", prompt, fmtStr("1-5", GREEN, true))
 				fmt.Scanln(&delay)
 				if !isValidRange(delay) {
 					failMessage("Invalid delay value, please try again.")
@@ -557,7 +550,7 @@ func main() {
 			}
 
 			for {
-				fmt.Printf("\n- Please enter number of noise packets (up to 50): ")
+				fmt.Printf("\n%s Please enter number of noise packets (up to 50): ", prompt)
 				fmt.Scanln(&count)
 				isValid, noiseCount := checkNum(count, 1, 50)
 				if !isValid {
@@ -582,7 +575,7 @@ func main() {
 
 	for {
 		var res string
-		fmt.Print("\n- How many Endpoints do you need: ")
+		fmt.Printf("\n%s How many Endpoints do you need: ", prompt)
 		fmt.Scanln(&res)
 		isValid, num := checkNum(res, 1, scanConfig.EndpointCount)
 		if isValid {
@@ -618,6 +611,6 @@ func main() {
 	successMessage("Scan completed.")
 	message := fmt.Sprintf("Found %d endpoints. You can check result.csv for more details.\n", len(results))
 	successMessage(message)
-	fmt.Println("Press any key to exit...")
+	fmt.Printf("%s Press any key to exit...", prompt)
 	fmt.Scanln()
 }
