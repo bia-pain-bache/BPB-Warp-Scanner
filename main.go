@@ -399,8 +399,10 @@ func isValidRange(value string) bool {
 	}
 
 	split := strings.Split(value, "-")
-	if len(split) == 2 && split[0] > split[1] {
-		return false
+	if len(split) == 2 {
+		min, _ := strconv.Atoi(split[0])
+		max, _ := strconv.Atoi(split[1])
+		return max >= min
 	}
 
 	return matched
@@ -412,7 +414,7 @@ func main() {
 	fmt.Printf("\n%s Deep scan - 10000 endpoints", fmtStr("3.", BLUE, true))
 	fmt.Printf("\n%s Custom scan - you choose how many endpoints", fmtStr("4.", BLUE, true))
 	for {
-		fmt.Printf("\n%s Please select scan mode (1-4): ", prompt)
+		fmt.Printf("\n\n%s Please select scan mode (1-4): ", prompt)
 		var mode string
 		fmt.Scanln(&mode)
 		switch mode {
@@ -424,7 +426,7 @@ func main() {
 		case "4":
 			for {
 				var howMany string
-				fmt.Printf("\n%s Please enter your desired endpoints count: ", prompt)
+				fmt.Printf("\n\n%s Please enter your desired endpoints count: ", prompt)
 				fmt.Scanln(&howMany)
 				isValid, c := checkNum(howMany, 1, 10000)
 				if !isValid {
@@ -445,7 +447,7 @@ func main() {
 	fmt.Printf("\n%s IPv4 and IPv6", fmtStr("3.", BLUE, true))
 	for {
 		var ipVersion string
-		fmt.Printf("\n%s Please select IP version (1-3): ", prompt)
+		fmt.Printf("\n\n%s Please select IP version (1-3): ", prompt)
 		fmt.Scanln(&ipVersion)
 		switch ipVersion {
 		case "1":
@@ -466,7 +468,7 @@ func main() {
 	fmt.Printf("\n%s Warp is OK, just need faster endpoints", fmtStr("2.", BLUE, true))
 	for {
 		var res string
-		fmt.Printf("\n%s Please select your situation (1 or 2): ", prompt)
+		fmt.Printf("\n\n%s Please select your situation (1 or 2): ", prompt)
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
@@ -483,7 +485,7 @@ func main() {
 	fmt.Printf("\n%s Setup custom noise", fmtStr("2.", BLUE, true))
 	for {
 		var res string
-		fmt.Printf("\n%s Please select (1 or 2): ", prompt)
+		fmt.Printf("\n\n%s Please select (1 or 2): ", prompt)
 		fmt.Scanln(&res)
 		switch res {
 		case "1":
@@ -495,7 +497,7 @@ func main() {
 			var noiseType, packet, delay, count string
 			for {
 				var res string
-				fmt.Printf("\n%s Please select UDP noise type (1-4): ", prompt)
+				fmt.Printf("\n\n%s Please select UDP noise type (1-4): ", prompt)
 				fmt.Scanln(&res)
 				switch res {
 				case "1":
