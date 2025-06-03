@@ -333,6 +333,17 @@ func init() {
 	}
 	xrayPath = filepath.Join(CORE_DIR, binary)
 
+	if _, err := os.Stat(xrayPath); err != nil {
+		failMessage("Xray core not found.")
+		log.Fatal(err)
+	}
+
+	err := os.Chmod(xrayPath, 0755)
+	if err != nil {
+		failMessage("Failed to set Xray core permissions.")
+		log.Fatal(err)
+	}
+
 	path := os.Getenv("PATH")
 	if runtime.GOOS == "android" || strings.Contains(path, "com.termux") {
 		prefix := os.Getenv("PREFIX")
