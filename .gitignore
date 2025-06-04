@@ -8,6 +8,7 @@
 !main.go
 !core.go
 !warp.go
+!network.go
 !Makefile
 !install.sh
 !README.md
