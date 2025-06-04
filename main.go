@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,7 +13,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
@@ -38,6 +35,7 @@ type ScanConfig struct {
 	UdpNoise      Noise
 	Endpoints     []string
 	OutputCount   int
+	ScanRetries   int
 }
 
 var (
@@ -62,6 +60,7 @@ var scanConfig = ScanConfig{
 		Delay:  "1-5",
 		Count:  5,
 	},
+	ScanRetries: 3, // Default number of retries for scanning each endpoint
 }
 
 type ScanResult struct {
@@ -165,7 +164,7 @@ func renderEndpoints(results []ScanResult) {
 	for _, r := range results {
 		tableRows = append(tableRows, []string{
 			r.Endpoint,
-			fmt.Sprintf("%.2f %%", r.Loss),
+			fmt.Sprintf("%.1f %%", r.Loss),
 			fmt.Sprintf("%d ms", r.Latency),
 		})
 	}
@@ -198,106 +197,6 @@ func failMessage(message string) {
 
 func successMessage(message string) {
 	fmt.Printf("\n%s %s\n", succMark, message)
-}
-
-func scanEndpoints() ([]ScanResult, error) {
-	err := createXrayConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	cmd, err := runXrayCore()
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
-
-	var wg sync.WaitGroup
-	results := make(chan ScanResult, len(scanConfig.Endpoints))
-	transports := make([]*http.Transport, len(scanConfig.Endpoints))
-
-	for i, endpoint := range scanConfig.Endpoints {
-		wg.Add(1)
-		go func(endpoint string, portIdx int) {
-			defer wg.Done()
-			time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
-			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 1080+portIdx)))
-			transport := &http.Transport{
-				Proxy: http.ProxyURL(proxyURL),
-			}
-			transports[portIdx] = transport
-
-			const tries = 3
-			var successCount int
-			var totalLatency int64
-
-			var innerWg sync.WaitGroup
-			latencies := make(chan int64, tries)
-
-			for t := range tries {
-				innerWg.Add(1)
-				go func(delay int) {
-					defer innerWg.Done()
-					time.Sleep(time.Duration(delay) * time.Millisecond)
-					client := &http.Client{
-						Timeout:   1 * time.Second,
-						Transport: transport,
-					}
-
-					start := time.Now()
-					resp, err := client.Head("http://www.gstatic.com/generate_204")
-					latency := time.Since(start).Milliseconds()
-					if err == nil && resp.StatusCode == 204 {
-						latencies <- latency
-						resp.Body.Close()
-					} else {
-						latencies <- -1
-					}
-				}(t * 200)
-			}
-			innerWg.Wait()
-			close(latencies)
-
-			for l := range latencies {
-				if l >= 0 {
-					successCount++
-					totalLatency += l
-				}
-			}
-
-			if successCount == 0 {
-				log.Printf("[%d] %s -> %s\n", i+1, fmtStr(endpoint, ORANGE, false), fmtStr("Failed", RED, true))
-			} else {
-				avgLatency := totalLatency / int64(successCount)
-				lossRate := float64(tries-successCount) / float64(tries) * 100
-				results <- ScanResult{Endpoint: endpoint, Loss: lossRate, Latency: avgLatency}
-				log.Printf("[%d] %s -> %s - %s %.2f %% - %s %d ms\n",
-					i+1,
-					fmtStr(endpoint, ORANGE, false),
-					fmtStr("Success", GREEN, true),
-					fmtStr("Loss rate:", "", true),
-					lossRate,
-					fmtStr("Avg. Latency:", "", true),
-					avgLatency,
-				)
-			}
-		}(endpoint, i)
-	}
-	wg.Wait()
-	close(results)
-
-	var allResults []ScanResult
-	for r := range results {
-		allResults = append(allResults, r)
-	}
-
-	if err := cmd.Process.Kill(); err != nil {
-		return nil, fmt.Errorf("error killing Xray core: %w", err)
-	}
-
-	cmd.Wait()
-
-	return allResults, nil
 }
 
 func init() {
@@ -355,6 +254,7 @@ func init() {
 		}
 	}
 
+	setDns()
 	renderHeader()
 }
 
@@ -590,6 +490,7 @@ func main() {
 	}
 
 	generateEndpoints()
+	checkNetworkStats()
 	results, err := scanEndpoints()
 	if err != nil {
 		failMessage("Scan failed.")

@@ -186,8 +186,14 @@ func buildConfig() (XrayConfig, error) {
 			Tag:           "dns",
 			QueryStrategy: queryStrategy,
 		},
-		Inbounds:  []httpInbound{},
-		Outbounds: []any{},
+		Inbounds: []httpInbound{},
+		Outbounds: []any{
+			FreedomOutbound{
+				Protocol: "freedom",
+				Settings: FreedomSettings{},
+				Tag:      "direct",
+			},
+		},
 		Routing: Routing{
 			DomainStrategy: "AsIs",
 			Rules: []RoutingRule{

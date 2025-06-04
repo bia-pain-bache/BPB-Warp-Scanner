@@ -2,13 +2,11 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"time"
 
@@ -76,28 +74,6 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 		return WarpConfig{}, fmt.Errorf("error marshaling warp reg payload: %w", err)
 	}
 
-	dialer := &net.Dialer{
-		Timeout: 5 * time.Second,
-		Resolver: &net.Resolver{
-			PreferGo: true,
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				d := net.Dialer{
-					Timeout: time.Second * 3,
-				}
-				return d.DialContext(ctx, "udp", "8.8.8.8:53")
-			},
-		},
-	}
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			DialContext:           dialer.DialContext,
-			TLSHandshakeTimeout:   3 * time.Second,
-			ResponseHeaderTimeout: 5 * time.Second,
-		},
-		Timeout: 5 * time.Second,
-	}
-
 	apiBaseUrl := "https://api.cloudflareclient.com/v0a4005/reg"
 	req, err := http.NewRequest("POST", apiBaseUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -106,7 +82,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 	req.Header.Set("User-Agent", "insomnia/8.6.1")
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return WarpConfig{}, fmt.Errorf("error registering warp: %w", err)
 	}
