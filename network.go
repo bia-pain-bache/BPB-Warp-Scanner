@@ -40,15 +40,15 @@ func setDns() {
 func checkNetworkStats() {
 	fmt.Printf("\n%s Determining network quality to adjust scan options, please wait...\n", prompt)
 	const (
-		testTargetURL     = "http://www.gstatic.com/generate_204"
+		testTargetURL     = "http://www.google.com/generate_204"
 		initialTestCount  = 100
-		goodLatencyMs     = 300
-		moderateLatencyMs = 400
-		poorLatencyMs     = 500
-		acceptableLoss    = 10.0
-		highLoss          = 20.0
-		moderateJitterMs  = 20.0
-		highJitterMs      = 40.0
+		goodLatencyMs     = 50
+		moderateLatencyMs = 100
+		poorLatencyMs     = 200
+		acceptableLoss    = 5.0
+		highLoss          = 10.0
+		moderateJitterMs  = 5.0
+		highJitterMs      = 10.0
 	)
 
 	var totalLatency int64

@@ -37,5 +37,4 @@ fi
 echo "Downloading ${ARCHIVE}..."
 curl -L -# -o "${ARCHIVE}" "https://github.com/bia-pain-bache/BPB-Warp-Scanner/releases/latest/download/${ARCHIVE}" && \
 tar xzf "./${ARCHIVE}" && \
-chmod +x "./${BINARY}" && \
 exec "./${BINARY}"
