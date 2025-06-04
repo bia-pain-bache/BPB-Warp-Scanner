@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 var httpClient *http.Client
@@ -38,7 +40,7 @@ func setDns() {
 }
 
 func checkNetworkStats() {
-	fmt.Printf("\n%s Determining network quality to adjust scan options, please wait...\n", prompt)
+	fmt.Printf("\n%s Determining network quality to adjust scan options...\n\n", prompt)
 	const (
 		testTargetURL     = "http://www.google.com/generate_204"
 		initialTestCount  = 100
@@ -55,6 +57,19 @@ func checkNetworkStats() {
 	successCount := 0
 	var wg sync.WaitGroup
 	latencyResults := make(chan int64, initialTestCount)
+	bar := progressbar.NewOptions(100,
+		progressbar.OptionShowBytes(false),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetPredictTime(false),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionSetDescription("Testing network..."),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]#[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+	)
 
 	for range initialTestCount {
 		wg.Add(1)
@@ -62,6 +77,7 @@ func checkNetworkStats() {
 			defer wg.Done()
 			start := time.Now()
 			resp, err := httpClient.Head(testTargetURL)
+			bar.Add(1)
 			latency := time.Since(start).Milliseconds()
 			if err == nil && resp.StatusCode == http.StatusNoContent {
 				if resp.Body != nil {
@@ -74,6 +90,7 @@ func checkNetworkStats() {
 		}()
 		time.Sleep(150 * time.Millisecond)
 	}
+	fmt.Println()
 
 	wg.Wait()
 	close(latencyResults)
