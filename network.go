@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"slices"
+
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -51,13 +53,18 @@ func checkNetworkStats() {
 		highLoss          = 10.0
 		moderateJitterMs  = 5.0
 		highJitterMs      = 10.0
+		maxConcurrency    = 5
 	)
 
-	var totalLatency int64
-	successCount := 0
-	var wg sync.WaitGroup
-	latencyResults := make(chan int64, initialTestCount)
-	bar := progressbar.NewOptions(100,
+	var (
+		totalLatency       int64
+		successCount       int
+		wg                 sync.WaitGroup
+		latencyResults     = make(chan int64, initialTestCount)
+		concurrencyLimiter = make(chan struct{}, maxConcurrency)
+	)
+
+	bar := progressbar.NewOptions(initialTestCount,
 		progressbar.OptionShowBytes(false),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetPredictTime(false),
@@ -75,6 +82,8 @@ func checkNetworkStats() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			concurrencyLimiter <- struct{}{}
+			defer func() { <-concurrencyLimiter }()
 			start := time.Now()
 			resp, err := httpClient.Head(testTargetURL)
 			bar.Add(1)
@@ -85,15 +94,17 @@ func checkNetworkStats() {
 				}
 				latencyResults <- latency
 			} else {
+				if resp != nil && resp.Body != nil {
+					resp.Body.Close()
+				}
 				latencyResults <- -1
 			}
 		}()
-		time.Sleep(150 * time.Millisecond)
 	}
-	fmt.Println()
 
 	wg.Wait()
 	close(latencyResults)
+	fmt.Println()
 
 	successfulLatencies := make([]int64, 0, successCount)
 	for res := range latencyResults {
@@ -110,13 +121,14 @@ func checkNetworkStats() {
 		return
 	}
 
-	avgLatency := totalLatency / int64(successCount)
+	slices.Sort(successfulLatencies)
+	medianLatency := successfulLatencies[len(successfulLatencies)/2]
 	lossRate := float64(initialTestCount-successCount) / float64(initialTestCount) * 100
 	var avgJitter float64
 
 	if successCount > 1 {
 		var totalJitter int64
-		for i := range len(successfulLatencies) - 1 {
+		for i := 0; i < len(successfulLatencies)-1; i++ {
 			diff := successfulLatencies[i+1] - successfulLatencies[i]
 			if diff < 0 {
 				diff = -diff
@@ -124,15 +136,15 @@ func checkNetworkStats() {
 			totalJitter += diff
 		}
 		avgJitter = float64(totalJitter) / float64(successCount-1)
-		fmt.Printf("\n%s Avg Latency: %dms - Jitter: %.1fms - Loss: %.1f%%\n", prompt, avgLatency, avgJitter, lossRate)
+		fmt.Printf("\n%s Avg Latency: %dms - Jitter: %.1fms - Loss: %.1f%%\n", prompt, medianLatency, avgJitter, lossRate)
 	} else {
-		fmt.Printf("\n%s Avg Latency: %dms - Jitter not calculated (unsuccessful tests) - Loss: %.1f%%\n", prompt, avgLatency, lossRate)
+		fmt.Printf("\n%s Avg Latency: %dms - Jitter not calculated (unsuccessful tests) - Loss: %.1f%%\n", prompt, medianLatency, lossRate)
 	}
 
-	if avgLatency >= int64(poorLatencyMs) || lossRate >= highLoss || (successCount > 1 && avgJitter >= highJitterMs) {
+	if medianLatency >= int64(poorLatencyMs) || lossRate >= highLoss || (successCount > 1 && avgJitter >= highJitterMs) {
 		scanConfig.ScanRetries = 7
 		successMessage("Network appears slow/unstable.")
-	} else if avgLatency >= int64(moderateLatencyMs) || lossRate >= acceptableLoss || (successCount > 1 && avgJitter >= moderateJitterMs) {
+	} else if medianLatency >= int64(moderateLatencyMs) || lossRate >= acceptableLoss || (successCount > 1 && avgJitter >= moderateJitterMs) {
 		scanConfig.ScanRetries = 5
 		successMessage("Network is moderate or some packet loss detected.")
 	} else {
