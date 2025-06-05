@@ -4,11 +4,12 @@ This project is developed to provide a handy Warp endpoints scanner for [BPB Pan
 
 ## Features
 
+- Tests network quality based on IP version to optimize scan settings
 - Registers a new Warp config per scan
 - Performs real delay test instead of ping to extract real endpoints
 - Ability to adjust output results count
 - 3 IP version modes: `IPv4`, `IPv6` and `IPv4 & IPv6`
-- Setting quantity of endpoints to scan: `Quick`, `Normal` and `Deep` modes
+- Setting quantity of endpoints to scan: `Quick`, `Normal`, `Deep` and `Custom` modes
 - Optional mode to scan with or without UDP noise
 - Full noise configuration options with `Base64`, `Hex`, `String` and `Random` modes
 

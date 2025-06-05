@@ -28,14 +28,17 @@ const (
 )
 
 type ScanConfig struct {
-	EndpointCount int
-	Ipv4Mode      bool
-	Ipv6Mode      bool
-	UseNoise      bool
-	UdpNoise      Noise
-	Endpoints     []string
-	OutputCount   int
-	ScanRetries   int
+	EndpointCount        int
+	Ipv4Mode             bool
+	Ipv6Mode             bool
+	IPv4Retries          int
+	IPv6Retries          int
+	RetryStaggeringMs    int
+	EndpointStaggeringMs int
+	UseNoise             bool
+	UdpNoise             Noise
+	Endpoints            []string
+	OutputCount          int
 }
 
 var (
@@ -60,7 +63,10 @@ var scanConfig = ScanConfig{
 		Delay:  "1-5",
 		Count:  5,
 	},
-	ScanRetries: 3, // Default number of retries for scanning each endpoint
+	IPv4Retries:          3,
+	IPv6Retries:          3,
+	RetryStaggeringMs:    200,
+	EndpointStaggeringMs: 100,
 }
 
 type ScanResult struct {
@@ -254,7 +260,6 @@ func init() {
 		}
 	}
 
-	setDns()
 	renderHeader()
 }
 
@@ -355,7 +360,6 @@ func main() {
 			scanConfig.Ipv4Mode = false
 			scanConfig.Ipv6Mode = true
 		case "3":
-			scanConfig.Ipv4Mode = true
 			scanConfig.Ipv6Mode = true
 		default:
 			failMessage("Invalid choice. Please select 1 to 3.")
@@ -489,8 +493,15 @@ func main() {
 		}
 	}
 
+	if scanConfig.Ipv4Mode {
+		checkNetworkStats(false)
+	}
+	if scanConfig.Ipv6Mode {
+		checkNetworkStats(true)
+	}
+
 	generateEndpoints()
-	checkNetworkStats()
+
 	results, err := scanEndpoints()
 	if err != nil {
 		failMessage("Scan failed.")

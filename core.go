@@ -75,7 +75,6 @@ type WgOutbound struct {
 	Protocol       string          `json:"protocol"`
 	Settings       Settings        `json:"settings"`
 	StreamSettings *StreamSettings `json:"streamSettings,omitempty"`
-	DomainStrategy string          `json:"domainStrategy"`
 	Tag            string          `json:"tag"`
 }
 
@@ -112,12 +111,7 @@ func buildHttpInbound(index int) httpInbound {
 	return inbound
 }
 
-func buildWgOutbound(index int, endpoint string, isIPv4 bool, warpConfig WarpParams) WgOutbound {
-	domainStrategy := "ForceIPv4"
-	if !isIPv4 {
-		domainStrategy = "ForceIPv6"
-	}
-
+func buildWgOutbound(index int, endpoint string, warpConfig WarpParams) WgOutbound {
 	outbound := WgOutbound{
 		Protocol: "wireguard",
 		Settings: Settings{
@@ -137,8 +131,7 @@ func buildWgOutbound(index int, endpoint string, isIPv4 bool, warpConfig WarpPar
 			Reserved:  warpConfig.Reserved,
 			SecretKey: warpConfig.PrivateKey,
 		},
-		DomainStrategy: domainStrategy,
-		Tag:            fmt.Sprintf("proxy-%d", index+1),
+		Tag: fmt.Sprintf("proxy-%d", index+1),
 	}
 
 	if scanConfig.UseNoise {
@@ -227,16 +220,11 @@ func buildConfig() (XrayConfig, error) {
 		return XrayConfig{}, err
 	}
 
-	count := len(scanConfig.Endpoints)
-	isIPv4 := scanConfig.Ipv4Mode
 	for index, endpoint := range scanConfig.Endpoints {
 		inbound := buildHttpInbound(index)
 		config.Inbounds = append(config.Inbounds, inbound)
 
-		if scanConfig.Ipv4Mode && scanConfig.Ipv6Mode && index >= count/2 {
-			isIPv4 = false
-		}
-		outbound := buildWgOutbound(index, endpoint, isIPv4, warpConfig)
+		outbound := buildWgOutbound(index, endpoint, warpConfig)
 		config.Outbounds = append(config.Outbounds, outbound)
 
 		routingRule := buildRoutingRule(index)

@@ -17,31 +17,58 @@ import (
 
 var httpClient *http.Client
 
-func setDns() {
+func initHttpClient(preferIPv6 bool) {
 	dialer := &net.Dialer{
 		Timeout: 5 * time.Second,
-		Resolver: &net.Resolver{
-			PreferGo: true,
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				d := net.Dialer{
-					Timeout: time.Second * 3,
-				}
-				return d.DialContext(ctx, "udp", "8.8.8.8:53")
-			},
+	}
+
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{
+				Timeout: 3 * time.Second,
+			}
+			return d.DialContext(ctx, "udp", "8.8.8.8:53")
 		},
+	}
+
+	transport := &http.Transport{
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			host, port, err := net.SplitHostPort(addr)
+			if err != nil {
+				return nil, err
+			}
+
+			ips, err := resolver.LookupIP(ctx, "ip", host)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, ip := range ips {
+				if preferIPv6 {
+					if ip.To4() == nil {
+						return dialer.DialContext(ctx, "tcp", net.JoinHostPort(ip.String(), port))
+					}
+				} else {
+					if ip.To4() != nil {
+						return dialer.DialContext(ctx, "tcp", net.JoinHostPort(ip.String(), port))
+					}
+				}
+			}
+
+			return nil, fmt.Errorf("no suitable IP found for %s", host)
+		},
+		TLSHandshakeTimeout:   3 * time.Second,
+		ResponseHeaderTimeout: 5 * time.Second,
 	}
 
 	httpClient = &http.Client{
-		Transport: &http.Transport{
-			DialContext:           dialer.DialContext,
-			TLSHandshakeTimeout:   3 * time.Second,
-			ResponseHeaderTimeout: 5 * time.Second,
-		},
-		Timeout: 5 * time.Second,
+		Transport: transport,
+		Timeout:   5 * time.Second,
 	}
 }
 
-func checkNetworkStats() {
+func checkNetworkStats(preferIPv6 bool) {
 	fmt.Printf("\n%s Determining network quality to adjust scan options...\n\n", prompt)
 	const (
 		testTargetURL     = "http://www.google.com/generate_204"
@@ -64,12 +91,17 @@ func checkNetworkStats() {
 		concurrencyLimiter = make(chan struct{}, maxConcurrency)
 	)
 
+	networkMode := "IPv4"
+	if preferIPv6 {
+		networkMode = "IPv6"
+	}
+	desc := fmt.Sprintf("Testing %s network...", networkMode)
 	bar := progressbar.NewOptions(initialTestCount,
 		progressbar.OptionShowBytes(false),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetPredictTime(false),
 		progressbar.OptionFullWidth(),
-		progressbar.OptionSetDescription("Testing network..."),
+		progressbar.OptionSetDescription(desc),
 		progressbar.OptionSetTheme(progressbar.Theme{
 			Saucer:        "[green]#[reset]",
 			SaucerPadding: " ",
@@ -78,6 +110,7 @@ func checkNetworkStats() {
 		}),
 	)
 
+	initHttpClient(preferIPv6)
 	for range initialTestCount {
 		wg.Add(1)
 		go func() {
@@ -117,7 +150,7 @@ func checkNetworkStats() {
 
 	if successCount == 0 {
 		failMessage("Initial network quality test failed. Could not reach test server.")
-		fmt.Printf("%s Using default scan settings.\n", prompt)
+		fmt.Printf("\n%s Fallback to default scan settings.\n", prompt)
 		return
 	}
 
@@ -136,16 +169,24 @@ func checkNetworkStats() {
 			totalJitter += diff
 		}
 		avgJitter = float64(totalJitter) / float64(successCount-1)
-		fmt.Printf("\n%s Avg Latency: %dms - Jitter: %.1fms - Loss: %.1f%%\n", prompt, medianLatency, avgJitter, lossRate)
+		fmt.Printf("\n%s Avg Latency: %dms | Jitter: %.1fms | Loss: %.1f%%\n", prompt, medianLatency, avgJitter, lossRate)
 	} else {
-		fmt.Printf("\n%s Avg Latency: %dms - Jitter not calculated (unsuccessful tests) - Loss: %.1f%%\n", prompt, medianLatency, lossRate)
+		fmt.Printf("\n%s Avg Latency: %dms | Jitter not calculated (unsuccessful tests) | Loss: %.1f%%\n", prompt, medianLatency, lossRate)
 	}
 
 	if medianLatency >= int64(poorLatencyMs) || lossRate >= highLoss || (successCount > 1 && avgJitter >= highJitterMs) {
-		scanConfig.ScanRetries = 7
+		if preferIPv6 {
+			scanConfig.IPv6Retries = 7
+		} else {
+			scanConfig.IPv4Retries = 7
+		}
 		successMessage("Network appears slow/unstable.")
 	} else if medianLatency >= int64(moderateLatencyMs) || lossRate >= acceptableLoss || (successCount > 1 && avgJitter >= moderateJitterMs) {
-		scanConfig.ScanRetries = 5
+		if preferIPv6 {
+			scanConfig.IPv6Retries = 5
+		} else {
+			scanConfig.IPv4Retries = 5
+		}
 		successMessage("Network is moderate or some packet loss detected.")
 	} else {
 		successMessage("Network quality seems good. Using default scan settings.")
@@ -172,14 +213,19 @@ func scanEndpoints() ([]ScanResult, error) {
 		wg.Add(1)
 		go func(endpoint string, portIdx int) {
 			defer wg.Done()
-			time.Sleep(time.Duration(portIdx*100) * time.Millisecond)
+			time.Sleep(time.Duration(portIdx*scanConfig.EndpointStaggeringMs) * time.Millisecond)
 			proxyURL := must(url.Parse(fmt.Sprintf("http://127.0.0.1:%d", 1080+portIdx)))
 			transport := &http.Transport{
 				Proxy: http.ProxyURL(proxyURL),
 			}
 			transports[portIdx] = transport
 
-			currentRetries := scanConfig.ScanRetries
+			currentRetries := scanConfig.IPv4Retries
+			if scanConfig.Ipv6Mode && !scanConfig.Ipv4Mode ||
+				scanConfig.Ipv4Mode && scanConfig.Ipv6Mode && i >= len(scanConfig.Endpoints)/2 {
+				currentRetries = scanConfig.IPv6Retries
+			}
+
 			var successCount int
 			var totalLatency int64
 
@@ -207,7 +253,7 @@ func scanEndpoints() ([]ScanResult, error) {
 					} else {
 						latencies <- -1
 					}
-				}(t * 200)
+				}(t * scanConfig.RetryStaggeringMs)
 			}
 			innerWg.Wait()
 			close(latencies)

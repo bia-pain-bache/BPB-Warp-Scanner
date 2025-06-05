@@ -74,6 +74,7 @@ func fetchWarpConfig(privateKey string) (WarpConfig, error) {
 		return WarpConfig{}, fmt.Errorf("error marshaling warp reg payload: %w", err)
 	}
 
+	initHttpClient(false)
 	apiBaseUrl := "https://api.cloudflareclient.com/v0a4005/reg"
 	req, err := http.NewRequest("POST", apiBaseUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
